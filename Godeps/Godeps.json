@@ -1,0 +1,57 @@
+{
+	"ImportPath": "github.com/Soontao/go-mysql-api",
+	"GoVersion": "go1.8",
+	"GodepVersion": "v79",
+	"Deps": [
+		{
+			"ImportPath": "github.com/go-sql-driver/mysql",
+			"Comment": "v1.3-26-g8fefef0",
+			"Rev": "8fefef06da7707b5a3cda42195a6b409c9c9ab5c"
+		},
+		{
+			"ImportPath": "github.com/labstack/echo",
+			"Comment": "v3.2.1-8-gc7531df",
+			"Rev": "c7531df815713bac670d0960e622c405d9700766"
+		},
+		{
+			"ImportPath": "github.com/labstack/gommon/color",
+			"Comment": "v0.2.1",
+			"Rev": "1121fd3e243c202482226a7afe4dcd07ffc4139a"
+		},
+		{
+			"ImportPath": "github.com/labstack/gommon/log",
+			"Comment": "v0.2.1",
+			"Rev": "1121fd3e243c202482226a7afe4dcd07ffc4139a"
+		},
+		{
+			"ImportPath": "github.com/mattn/go-colorable",
+			"Comment": "v0.0.8",
+			"Rev": "941b50ebc6efddf4c41c8e4537a5f68a4e686b24"
+		},
+		{
+			"ImportPath": "github.com/mattn/go-isatty",
+			"Comment": "v0.0.2",
+			"Rev": "fc9e8d8ef48496124e79ae0df75490096eccf6fe"
+		},
+		{
+			"ImportPath": "github.com/valyala/bytebufferpool",
+			"Rev": "e746df99fe4a3986f4d4f79e13c1e0117ce9c2f7"
+		},
+		{
+			"ImportPath": "github.com/valyala/fasttemplate",
+			"Rev": "dcecefd839c4193db0d35b88ec65b4c12d360ab0"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/acme",
+			"Rev": "5ef0053f77724838734b6945dd364d3847e5de1d"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/acme/autocert",
+			"Rev": "5ef0053f77724838734b6945dd364d3847e5de1d"
+		},
+		{
+			"ImportPath": "golang.org/x/sys/unix",
+			"Rev": "90796e5a05ce440b41c768bd9af257005e470461"
+		}
+	]
+}
