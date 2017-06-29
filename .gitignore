@@ -16,3 +16,4 @@
 # godep
 
 vendor
+.vendor*
