@@ -17,3 +17,5 @@
 
 vendor
 .vendor*
+*.test
+*debug*

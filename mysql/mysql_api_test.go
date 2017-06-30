@@ -5,10 +5,10 @@ import (
 	"testing"
 )
 
-var coonectionStr = "root:stuecstothetimetolife@tcp(stu.ecs.fornever.org:3306)/monitor"
+var connectionStr = "monitor:yn0Mbx1mPcZWlvzb@tcp(stu.ecs.fornever.org:3306)/monitor"
 
 func TestCreateMysqlAPIInstance(t *testing.T) {
-	api := NewMysqlAPI(coonectionStr)
+	api := NewMysqlAPI(connectionStr)
 	rows, err := api.connection.Query("select 1")
 	if err != nil {
 		log.Fatal(err)
@@ -24,8 +24,15 @@ func TestCreateMysqlAPIInstance(t *testing.T) {
 }
 
 func TestCurrentDatabaseName(t *testing.T) {
-	api := NewMysqlAPI(coonectionStr)
+	api := NewMysqlAPI(connectionStr)
 	res := api.CurrentDatabaseName()
 	println(res)
+	api.Stop()
+}
+
+func TestRetriveMetadata(t *testing.T) {
+	api := NewMysqlAPI(connectionStr)
+	res := api.retriveDatabaseMetadata("monitor")
+	println(res.Tables[0].Columns[0].ColumnName)
 	api.Stop()
 }

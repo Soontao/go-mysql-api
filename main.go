@@ -1,15 +1,9 @@
 package main
 
-import (
-	"net/http"
-
-	"github.com/labstack/echo"
-)
+import "github.com/Soontao/go-mysql-api/server"
 
 func main() {
-	e := echo.New()
-	e.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Hello, World!")
-	})
-	e.Logger.Fatal(e.Start(":1323"))
+	server.
+		NewMysqlAPIServer("monitor:yn0Mbx1mPcZWlvzb@tcp(stu.ecs.fornever.org:3306)/monitor").
+		Start(":1323")
 }

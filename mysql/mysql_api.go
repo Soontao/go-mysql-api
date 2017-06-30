@@ -2,15 +2,22 @@ package mysql
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"time"
 	// registe mysql driver
 	_ "github.com/go-sql-driver/mysql"
 )
 
-// MysqlAPI type
+// MysqlAPI
 type MysqlAPI struct {
-	connection *sql.DB
+	connection       *sql.DB
+	databaseMetadata *DataBaseMetadata
+}
+
+// GetDatabaseMetadata return database meta
+func (api *MysqlAPI) GetDatabaseMetadata() *DataBaseMetadata {
+	return api.databaseMetadata
 }
 
 // GetConnectionPool which Pool is Singleton Connection Pool
@@ -21,7 +28,7 @@ func (api *MysqlAPI) GetConnectionPool(dbURI string) *sql.DB {
 			log.Fatal(err.Error())
 		}
 		// 3 minutes unused connections will be closed
-		pool.SetConnMaxLifetime(180 * time.Second)
+		pool.SetConnMaxLifetime(3 * time.Minute)
 		pool.SetMaxIdleConns(3)
 		pool.SetMaxOpenConns(10)
 		api.connection = pool
@@ -40,33 +47,57 @@ func (api *MysqlAPI) Stop() *MysqlAPI {
 // CurrentDatabaseName return current database
 func (api *MysqlAPI) CurrentDatabaseName() string {
 	rows, err := api.connection.Query("select database()")
-	if err != nil {
-		log.Fatal(err)
-	}
+	processIfError(err)
 	var res string
 	for rows.Next() {
 		if err := rows.Scan(&res); err != nil {
 			log.Fatal(err)
 		}
 	}
-
 	return res
 }
 
-func (api *MysqlAPI) retriveDatabaseMetadata() *MysqlAPI {
-
-	return api
+func (api *MysqlAPI) retriveDatabaseMetadata(databaseName string) *DataBaseMetadata {
+	var tableMetas []*TableMetadata
+	rs := &DataBaseMetadata{DatabaseName: databaseName}
+	rows, err := api.connection.Query("show tables")
+	processIfError(err)
+	for rows.Next() {
+		var tableName string
+		err := rows.Scan(&tableName)
+		processIfError(err)
+		tableMetas = append(tableMetas, api.retriveTableMetadata(tableName))
+	}
+	rs.Tables = tableMetas
+	return rs
 }
 
-func (api *MysqlAPI) retriveTableMetadata() *MysqlAPI {
+func processIfError(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
+}
 
-	return api
+func (api *MysqlAPI) retriveTableMetadata(tableName string) *TableMetadata {
+	rs := &TableMetadata{TableName: tableName}
+	var columnMetas []*ColumnMetadata
+	rows, err := api.connection.Query(fmt.Sprintf("desc %s", tableName))
+	processIfError(err)
+	for rows.Next() {
+		var columnName, columnType, nullAble, key, defaultValue, extra sql.NullString
+		err := rows.Scan(&columnName, &columnType, &nullAble, &key, &defaultValue, &extra)
+		processIfError(err)
+		columnMeta := &ColumnMetadata{columnName.String, columnType.String, nullAble.String, key.String, defaultValue.String, extra.String}
+		columnMetas = append(columnMetas, columnMeta)
+	}
+	rs.Columns = columnMetas
+	return rs
 }
 
 // NewMysqlAPI create new MysqlAPI instance
 func NewMysqlAPI(dbURI string) *MysqlAPI {
 	newAPI := &MysqlAPI{}
 	newAPI.GetConnectionPool(dbURI)
-	newAPI.retriveDatabaseMetadata()
+	newAPI.databaseMetadata = newAPI.retriveDatabaseMetadata(newAPI.CurrentDatabaseName())
 	return newAPI
 }
