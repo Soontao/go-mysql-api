@@ -23,6 +23,11 @@ func NewMysqlAPI(dbURI string) *MysqlAPI {
 	return newAPI
 }
 
+// Connection return
+func (api *MysqlAPI) Connection() *sql.DB {
+	return api.connection
+}
+
 // GetDatabaseMetadata return database meta
 func (api *MysqlAPI) GetDatabaseMetadata() *DataBaseMetadata {
 	return api.databaseMetadata
@@ -105,7 +110,10 @@ func (api *MysqlAPI) retriveTableMetadata(tableName string) *TableMetadata {
 // Query by sql
 func (api *MysqlAPI) Query(sql string, args ...interface{}) ([]map[string]interface{}, error) {
 	var rs []map[string]interface{}
-	rows, _ := api.connection.Query(sql, args...)
+	rows, err := api.connection.Query(sql, args...)
+	if err != nil {
+		return nil, err
+	}
 	cols, _ := rows.Columns()
 
 	for rows.Next() {
@@ -120,6 +128,7 @@ func (api *MysqlAPI) Query(sql string, args ...interface{}) ([]map[string]interf
 		}
 
 		m := make(map[string]interface{})
+		// need convert number or string
 		for i, colName := range cols {
 			val := columnPointers[i].(*interface{})
 			m[colName] = *val
