@@ -101,3 +101,30 @@ func NewMysqlAPI(dbURI string) *MysqlAPI {
 	newAPI.databaseMetadata = newAPI.retriveDatabaseMetadata(newAPI.CurrentDatabaseName())
 	return newAPI
 }
+
+// Query by sql
+func (api *MysqlAPI) Query(sql string) ([]map[string]interface{}, error) {
+	var rs []map[string]interface{}
+	rows, _ := api.connection.Query(sql)
+	cols, _ := rows.Columns()
+
+	for rows.Next() {
+		columns := make([]interface{}, len(cols))
+		columnPointers := make([]interface{}, len(cols))
+		for i := range columns {
+			columnPointers[i] = &columns[i]
+		}
+
+		if err := rows.Scan(columnPointers...); err != nil {
+			return nil, err
+		}
+
+		m := make(map[string]interface{})
+		for i, colName := range cols {
+			val := columnPointers[i].(*interface{})
+			m[colName] = *val
+		}
+		rs = append(rs, m)
+	}
+	return rs, nil
+}

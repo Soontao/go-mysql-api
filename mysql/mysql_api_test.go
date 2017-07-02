@@ -1,6 +1,7 @@
 package mysql
 
 import (
+	"fmt"
 	"log"
 	"testing"
 )
@@ -35,4 +36,16 @@ func TestRetriveMetadata(t *testing.T) {
 	res := api.retriveDatabaseMetadata("monitor")
 	println(res.Tables[0].Columns[0].ColumnName)
 	api.Stop()
+}
+
+func TestRowScan(t *testing.T) {
+	api := NewMysqlAPI(connectionStr)
+	defer api.Stop()
+	rs, err := api.Query("select * from monitor limit 5")
+	if err != nil {
+		t.Error(err)
+	}
+	for _, row := range rs {
+		fmt.Printf("%s\n", row["target"])
+	}
 }
