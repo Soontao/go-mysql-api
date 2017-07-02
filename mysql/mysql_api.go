@@ -15,6 +15,14 @@ type MysqlAPI struct {
 	databaseMetadata *DataBaseMetadata
 }
 
+// NewMysqlAPI create new MysqlAPI instance
+func NewMysqlAPI(dbURI string) *MysqlAPI {
+	newAPI := &MysqlAPI{}
+	newAPI.GetConnectionPool(dbURI)
+	newAPI.databaseMetadata = newAPI.retriveDatabaseMetadata(newAPI.CurrentDatabaseName())
+	return newAPI
+}
+
 // GetDatabaseMetadata return database meta
 func (api *MysqlAPI) GetDatabaseMetadata() *DataBaseMetadata {
 	return api.databaseMetadata
@@ -94,18 +102,10 @@ func (api *MysqlAPI) retriveTableMetadata(tableName string) *TableMetadata {
 	return rs
 }
 
-// NewMysqlAPI create new MysqlAPI instance
-func NewMysqlAPI(dbURI string) *MysqlAPI {
-	newAPI := &MysqlAPI{}
-	newAPI.GetConnectionPool(dbURI)
-	newAPI.databaseMetadata = newAPI.retriveDatabaseMetadata(newAPI.CurrentDatabaseName())
-	return newAPI
-}
-
 // Query by sql
-func (api *MysqlAPI) Query(sql string) ([]map[string]interface{}, error) {
+func (api *MysqlAPI) Query(sql string, args ...interface{}) ([]map[string]interface{}, error) {
 	var rs []map[string]interface{}
-	rows, _ := api.connection.Query(sql)
+	rows, _ := api.connection.Query(sql, args...)
 	cols, _ := rows.Columns()
 
 	for rows.Next() {
@@ -127,4 +127,9 @@ func (api *MysqlAPI) Query(sql string) ([]map[string]interface{}, error) {
 		rs = append(rs, m)
 	}
 	return rs, nil
+}
+
+// Exec a sql
+func (api *MysqlAPI) Exec(sql string, args ...interface{}) (sql.Result, error) {
+	return api.connection.Exec(sql, args...)
 }
