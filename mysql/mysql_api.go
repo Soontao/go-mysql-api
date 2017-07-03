@@ -4,11 +4,13 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"strconv"
 	"time"
 	// registe mysql driver
 	_ "github.com/go-sql-driver/mysql"
 	"gopkg.in/doug-martin/goqu.v4"
 	// mysql dialect
+
 	_ "gopkg.in/doug-martin/goqu.v4/adapters/mysql"
 )
 
@@ -31,6 +33,11 @@ func NewMysqlAPI(dbURI string) *MysqlAPI {
 // Connection return
 func (api *MysqlAPI) Connection() *sql.DB {
 	return api.connection
+}
+
+// SQL instance
+func (api *MysqlAPI) SQL() *SQL {
+	return api.sql
 }
 
 // GetDatabaseMetadata return database meta
@@ -133,10 +140,18 @@ func (api *MysqlAPI) Query(sql string, args ...interface{}) ([]map[string]interf
 		}
 
 		m := make(map[string]interface{})
-		// need to convert number or string
+		// NEED TO DETECT COLUMN TYPE, and convert to correct type
+		// NOT IMPLEMENT NOW
+		// CURRENT METHOD IS TRY TO CONVERT STRING TO INT/FLOAT
 		for i, colName := range cols {
-			val := columnPointers[i].(*interface{})
-			m[colName] = *val
+			val := fmt.Sprintf("%s", *columnPointers[i].(*interface{}))
+			m[colName] = val
+			if iVal, err := strconv.Atoi(val); err == nil {
+				m[colName] = iVal
+			}
+			if fVal, err := strconv.ParseFloat(val, 64); err == nil {
+				m[colName] = fVal
+			}
 		}
 		rs = append(rs, m)
 	}

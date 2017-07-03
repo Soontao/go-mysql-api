@@ -1,7 +1,10 @@
 package server
 
 import (
+	"encoding/json"
 	"net/http"
+
+	"reflect"
 
 	"github.com/labstack/echo"
 	"github.com/mediocregopher/gojson"
@@ -9,9 +12,9 @@ import (
 
 // Message
 type Message struct {
-	Status  int
-	Message string
-	Data    interface{}
+	Status  int         `json:"status"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data"`
 }
 
 func goJSON(c echo.Context, code int, i interface{}) error {
@@ -26,6 +29,10 @@ func goJSON(c echo.Context, code int, i interface{}) error {
 	return c.JSONBlob(code, b)
 }
 
+func goJSONMessage(c echo.Context, m string, i interface{}) error {
+	return goJSON(c, http.StatusOK, &Message{http.StatusOK, m, i})
+}
+
 func goJSONPretty(c echo.Context, code int, i interface{}, indent string) (err error) {
 	b, err := gojson.MarshalIndent(i, "", indent)
 	if err != nil {
@@ -34,9 +41,17 @@ func goJSONPretty(c echo.Context, code int, i interface{}, indent string) (err e
 	return c.JSONBlob(code, b)
 }
 
-func processError(c echo.Context, err error) error {
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, Message{Status: 500, Message: err.Error()})
+func bodyMapOf(c echo.Context) (jsonMap map[string]interface{}, err error) {
+	jsonMap = make(map[string]interface{})
+	err = json.NewDecoder(c.Request().Body).Decode(&jsonMap)
+	return jsonMap, err
+}
+
+func customErrorHandler(err error, c echo.Context) {
+	if reflect.TypeOf(err) == reflect.TypeOf(&echo.HTTPError{}) {
+		httpError := err.(*echo.HTTPError)
+		goJSON(c, httpError.Code, &Message{httpError.Code, httpError.Message.(string), nil})
+	} else {
+		goJSON(c, http.StatusInternalServerError, &Message{http.StatusInternalServerError, err.Error(), nil})
 	}
-	return nil
 }

@@ -19,3 +19,9 @@ vendor
 .vendor*
 *.test
 *debug*
+
+# ide
+
+.idea
+
+*.iml
