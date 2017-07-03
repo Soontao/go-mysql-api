@@ -7,12 +7,16 @@ import (
 	"time"
 	// registe mysql driver
 	_ "github.com/go-sql-driver/mysql"
+	"gopkg.in/doug-martin/goqu.v4"
+	// mysql dialect
+	_ "gopkg.in/doug-martin/goqu.v4/adapters/mysql"
 )
 
 // MysqlAPI
 type MysqlAPI struct {
 	connection       *sql.DB
 	databaseMetadata *DataBaseMetadata
+	sql              *SQL
 }
 
 // NewMysqlAPI create new MysqlAPI instance
@@ -20,6 +24,7 @@ func NewMysqlAPI(dbURI string) *MysqlAPI {
 	newAPI := &MysqlAPI{}
 	newAPI.GetConnectionPool(dbURI)
 	newAPI.databaseMetadata = newAPI.retriveDatabaseMetadata(newAPI.CurrentDatabaseName())
+	newAPI.sql = &SQL{goqu.New("mysql", newAPI.connection), newAPI.databaseMetadata}
 	return newAPI
 }
 
@@ -128,7 +133,7 @@ func (api *MysqlAPI) Query(sql string, args ...interface{}) ([]map[string]interf
 		}
 
 		m := make(map[string]interface{})
-		// need convert number or string
+		// need to convert number or string
 		for i, colName := range cols {
 			val := columnPointers[i].(*interface{})
 			m[colName] = *val

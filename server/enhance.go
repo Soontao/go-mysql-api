@@ -7,6 +7,7 @@ import (
 	"github.com/mediocregopher/gojson"
 )
 
+// Message
 type Message struct {
 	Status  int
 	Message string

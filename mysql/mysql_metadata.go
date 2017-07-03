@@ -31,3 +31,23 @@ type ColumnMetadata struct {
 	DefaultValue string // default value if have
 	Extra        string // extra info, for example, auto_increment
 }
+
+// GetTableMeta
+func (d *DataBaseMetadata) GetTableMeta(tableName string) *TableMetadata {
+	for _, table := range d.Tables {
+		if table.TableName == tableName {
+			return table
+		}
+	}
+	return nil
+}
+
+// GetPrimaryColumn
+func (t *TableMetadata) GetPrimaryColumn() *ColumnMetadata {
+	for _, col := range t.Columns {
+		if col.Key == "PRI" {
+			return col
+		}
+	}
+	return nil
+}
