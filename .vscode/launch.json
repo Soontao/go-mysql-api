@@ -11,8 +11,11 @@
       "host": "127.0.0.1",
       "program": "${workspaceRoot}/main.go",
       "env": {},
-      "args": [],
-      "showLog": true
+      "args": [
+        "-c",
+        "monitor:yn0Mbx1mPcZWlvzb@tcp(stu.ecs.fornever.org:3306)/monitor"
+      ],
+      "showLog": false
     }
   ]
 }

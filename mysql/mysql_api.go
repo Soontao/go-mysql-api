@@ -3,14 +3,13 @@ package mysql
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"strconv"
 	"time"
 	// registe mysql driver
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/labstack/gommon/log"
 	"gopkg.in/doug-martin/goqu.v4"
 	// mysql dialect
-
 	_ "gopkg.in/doug-martin/goqu.v4/adapters/mysql"
 )
 
@@ -25,6 +24,7 @@ type MysqlAPI struct {
 func NewMysqlAPI(dbURI string) *MysqlAPI {
 	newAPI := &MysqlAPI{}
 	newAPI.GetConnectionPool(dbURI)
+	log.Debugf("connect to mysql with conn_str: %s", dbURI)
 	newAPI.databaseMetadata = newAPI.retriveDatabaseMetadata(newAPI.CurrentDatabaseName())
 	newAPI.sql = &SQL{goqu.New("mysql", newAPI.connection), newAPI.databaseMetadata}
 	return newAPI

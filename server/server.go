@@ -3,6 +3,7 @@ package server
 import (
 	"github.com/Soontao/go-mysql-api/mysql"
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 )
 
 // MysqlAPIServer is a http server could access mysql api
@@ -16,6 +17,11 @@ func NewMysqlAPIServer(dbURI string) *MysqlAPIServer {
 	server := &MysqlAPIServer{}
 	server.e = echo.New()
 	server.e.HTTPErrorHandler = customErrorHandler
+	server.e.HideBanner = true
+	server.e.Logger = L
+	server.e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Format: "[REQ] ${time_rfc3339_nano} ${method} (HTTP${status}) ${uri} ${latency}ns\n",
+	}))
 	server.api = mysql.NewMysqlAPI(dbURI)
 	return server
 }
@@ -26,6 +32,7 @@ func (server *MysqlAPIServer) Start(address string) *MysqlAPIServer {
 	server.e.POST("/api/echo", server.endpointEcho)
 	server.e.GET("/api/:table", server.endpointTableGet)
 	server.e.GET("/api/:table/:id", server.endpointTableGetSpecific)
+	server.e.Logger.Infof("server start at %s", address)
 	server.e.Logger.Fatal(server.e.Start(address))
 	return server
 }
