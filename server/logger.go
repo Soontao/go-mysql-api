@@ -6,8 +6,10 @@ import (
 	"github.com/labstack/gommon/log"
 )
 
-var L *log.Logger = NewLogger()
+// L public Logger
+var L = NewLogger()
 
+// NewLogger for instance
 func NewLogger() (l *log.Logger) {
 	l = log.New("mysql-api-server")
 	l.SetHeader(`[${level}] ${time_rfc3339_nano}`)
