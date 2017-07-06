@@ -2,6 +2,8 @@ package mysql
 
 import (
 	"gopkg.in/doug-martin/goqu.v4"
+	// mysql dialect
+	_ "gopkg.in/doug-martin/goqu.v4/adapters/mysql"
 )
 
 // SQL return sqls by sql builder
@@ -44,13 +46,13 @@ func (s *SQL) UpdateByTable(tableName string, record map[string]interface{}) (sq
 
 // InsertByTable and record map
 func (s *SQL) InsertByTable(tableName string, record map[string]interface{}) (sql string, err error) {
-	sql = goqu.From(tableName).Insert(record).Sql
+	sql, _, err = s.sqlBuilder.From(tableName).Where().ToInsertSql(record)
 	return
 }
 
 // DeleteByTable by where
 func (s *SQL) DeleteByTable(tableName string, mWhere map[string]interface{}) (sql string, err error) {
-	builder := goqu.From(tableName)
+	builder := s.sqlBuilder.From(tableName)
 	for k, v := range mWhere {
 		builder = builder.Where(goqu.Ex{k: v})
 	}

@@ -49,10 +49,10 @@ func (m *MysqlAPIServer) endpointTableCreate(c echo.Context) (err error) {
 	if err != nil {
 		return
 	}
-	if rs, err := m.api.Create(tableName, payload); err != nil {
+	if _, err := m.api.Create(tableName, payload); err != nil {
 		return err
 	} else {
-		return goJSONMessage(c, "create record", rs)
+		return goJSONMessage(c, "create record", "success")
 	}
 }
 
@@ -62,10 +62,10 @@ func (m *MysqlAPIServer) endpointTableUpdate(c echo.Context) (err error) {
 	if err != nil {
 		return
 	}
-	if rs, err := m.api.Update(tableName, payload); err != nil {
+	if _, err := m.api.Update(tableName, payload); err != nil {
 		return err
 	} else {
-		return goJSONMessage(c, "create record", rs)
+		return goJSONMessage(c, "update record", "success")
 	}
 }
 
@@ -75,9 +75,9 @@ func (m *MysqlAPIServer) endpointTableDelete(c echo.Context) (err error) {
 	if err != nil {
 		return
 	}
-	if rs, err := m.api.Delete(tableName, payload); err != nil {
+	if _, err := m.api.Delete(tableName, payload); err != nil {
 		return err
 	} else {
-		return goJSONMessage(c, "deleteRecords", rs)
+		return goJSONMessage(c, "deleteRecords", "success")
 	}
 }
