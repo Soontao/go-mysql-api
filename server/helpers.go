@@ -3,6 +3,7 @@ package server
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"reflect"
 
@@ -54,4 +55,17 @@ func customErrorHandler(err error, c echo.Context) {
 	} else {
 		goJSON(c, http.StatusInternalServerError, &Message{http.StatusInternalServerError, err.Error(), nil})
 	}
+}
+
+func parseQueryParams(c echo.Context) (limit int, offset int, fields []interface{}) {
+	queryParam := c.QueryParams()
+	limit, _ = strconv.Atoi(c.QueryParam("_limit"))
+	offset, _ = strconv.Atoi(c.QueryParam("_skip"))
+	if queryParam["_field"] != nil {
+		fields := make([]interface{}, len(queryParam["_field"]))
+		for idx, f := range queryParam["_field"] {
+			fields[idx] = f
+		}
+	}
+	return
 }

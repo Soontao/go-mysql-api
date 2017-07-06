@@ -1,9 +1,6 @@
 package mysql
 
 import (
-	"net/url"
-	"strconv"
-
 	"gopkg.in/doug-martin/goqu.v4"
 )
 
@@ -17,17 +14,28 @@ func (s *SQL) getPriKeyNameOf(tableName string) string {
 	return s.dbMeta.GetTableMeta(tableName).GetPrimaryColumn().ColumnName
 }
 
+// GetByTable with filter
+func (s *SQL) GetByTable(tableName string, mWhere map[string]interface{}, opt QueryOption) (sql string, err error) {
+	builder := s.sqlBuilder.From(tableName)
+	for k, v := range mWhere {
+		builder = builder.Where(goqu.Ex{k: v})
+	}
+	builder = configBuilder(builder, opt)
+	sql, _, err = builder.ToSql()
+	return
+}
+
 // GetByTableAndID for specific record in table
-func (s *SQL) GetByTableAndID(tableName string, id interface{}, queryParam url.Values) (sql string, err error) {
+func (s *SQL) GetByTableAndID(tableName string, id interface{}, opt QueryOption) (sql string, err error) {
 	priKeyName := s.getPriKeyNameOf(tableName)
 	builder := s.sqlBuilder.From(tableName).Where(goqu.Ex{priKeyName: id})
-	processSQLBuilderWithQueryParam(builder, queryParam)
+	builder = configBuilder(builder, opt)
 	sql, _, err = builder.ToSql()
 	return sql, err
 }
 
-// UpdateByTableAndID for update specific record by id
-func (s *SQL) UpdateByTableAndID(tableName string, record map[string]interface{}) (sql string, err error) {
+// UpdateByTable for update specific record by id
+func (s *SQL) UpdateByTable(tableName string, record map[string]interface{}) (sql string, err error) {
 	priKeyName := s.getPriKeyNameOf(tableName)
 	builder := s.sqlBuilder.From(tableName).Where(goqu.Ex{priKeyName: record[priKeyName]})
 	sql, _, err = builder.ToUpdateSql(record)
@@ -40,8 +48,8 @@ func (s *SQL) InsertByTable(tableName string, record map[string]interface{}) (sq
 	return
 }
 
-// DeleteByTableWhere map
-func (s *SQL) DeleteByTableWhere(tableName string, mWhere map[string]interface{}) (sql string, err error) {
+// DeleteByTable by where
+func (s *SQL) DeleteByTable(tableName string, mWhere map[string]interface{}) (sql string, err error) {
 	builder := goqu.From(tableName)
 	for k, v := range mWhere {
 		builder = builder.Where(goqu.Ex{k: v})
@@ -50,29 +58,16 @@ func (s *SQL) DeleteByTableWhere(tableName string, mWhere map[string]interface{}
 	return
 }
 
-// GetByTable for most records
-func (s *SQL) GetByTable(tableName string, queryParam url.Values) (sql string, err error) {
-	builder := s.sqlBuilder.From(tableName)
-	builder, err = processSQLBuilderWithQueryParam(builder, queryParam)
-	sql, _, err = builder.ToSql()
-	return
-}
-
-func processSQLBuilderWithQueryParam(builder *goqu.Dataset, queryParam url.Values) (rs *goqu.Dataset, err error) {
+func configBuilder(builder *goqu.Dataset, opt QueryOption) (rs *goqu.Dataset) {
 	rs = builder
-	if queryParam["_limit"] != nil {
-		iLimit, err := strconv.ParseUint(queryParam["_limit"][0], 10, 2)
-		if err != nil {
-			return rs, err
-		}
-		rs = rs.Limit(uint(iLimit))
+	if opt.limit != 0 {
+		rs = rs.Limit(uint(opt.limit))
 	}
-	if queryParam["_field"] != nil {
-		fields := make([]interface{}, len(queryParam["_field"]))
-		for idx, f := range queryParam["_field"] {
-			fields[idx] = f
-		}
-		rs = rs.Select(fields...)
+	if opt.offset != 0 {
+		rs = rs.Offset(uint(opt.offset))
 	}
-	return rs, err
+	if opt.fields != nil {
+		rs = rs.Select(opt.fields...)
+	}
+	return
 }

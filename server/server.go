@@ -28,10 +28,16 @@ func NewMysqlAPIServer(dbURI string) *MysqlAPIServer {
 
 // Start server
 func (server *MysqlAPIServer) Start(address string) *MysqlAPIServer {
-	server.e.GET("/api/metadata", server.endpointMetadata)
-	server.e.POST("/api/echo", server.endpointEcho)
-	server.e.GET("/api/:table", server.endpointTableGet)
+	server.e.GET("/api/metadata", server.endpointMetadata) // metadata
+	server.e.POST("/api/echo", server.endpointEcho)        // echo api
+
+	server.e.GET("/api/:table", server.endpointTableGet)       // Retrive
+	server.e.POST("/api/:table", server.endpointTableUpdate)   // Update
+	server.e.PUT("/api/:table", server.endpointTableCreate)    // Create
+	server.e.DELETE("/api/:table", server.endpointTableDelete) // Remove
+
 	server.e.GET("/api/:table/:id", server.endpointTableGetSpecific)
+
 	server.e.Logger.Infof("server start at %s", address)
 	server.e.Logger.Fatal(server.e.Start(address))
 	return server

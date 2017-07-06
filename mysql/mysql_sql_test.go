@@ -1,7 +1,6 @@
 package mysql
 
 import (
-	"net/url"
 	"testing"
 
 	goqu "gopkg.in/doug-martin/goqu.v4"
@@ -12,7 +11,7 @@ import (
 func TestSQL_GetByTableAndID(t *testing.T) {
 	api := NewMysqlAPI(connectionStr)
 	defer api.Stop()
-	if sql, err := api.sql.GetByTableAndID("monitor", 1, url.Values{}); err != nil {
+	if sql, err := api.sql.GetByTableAndID("monitor", 1, QueryOption{1, 2, nil}); err != nil {
 		t.Error(err)
 	} else {
 		println(sql)
@@ -38,7 +37,7 @@ func TestDeleteSQLFromMap(t *testing.T) {
 func TestUpdateSQLFromMap(t *testing.T) {
 	api := NewMysqlAPI(connectionStr)
 	defer api.Stop()
-	if sql, err := api.sql.UpdateByTableAndID("monitor", map[string]interface{}{"mid": 1, "target": "change it"}); err != nil {
+	if sql, err := api.sql.UpdateByTable("monitor", map[string]interface{}{"mid": 1, "target": "change it"}); err != nil {
 		t.Error(err)
 	} else {
 		println(sql)

@@ -1,11 +1,10 @@
 package mysql
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"testing"
-
-	"github.com/mediocregopher/gojson"
 )
 
 var connectionStr = "monitor:yn0Mbx1mPcZWlvzb@tcp(stu.ecs.fornever.org:3306)/monitor"
@@ -43,12 +42,12 @@ func TestRetriveMetadata(t *testing.T) {
 func TestRowScan(t *testing.T) {
 	api := NewMysqlAPI(connectionStr)
 	defer api.Stop()
-	rs, err := api.Query("select * from monitor limit ?", 2)
+	rs, err := api.query("select * from monitor limit ?", 2)
 	if err != nil {
 		t.Error(err)
 	}
 	for _, row := range rs {
-		jsonStr, _ := gojson.Marshal(row) // use gojson avoid base64 encode of []byte
+		jsonStr, _ := json.Marshal(row) // use gojson avoid base64 encode of []byte
 		fmt.Printf("%s\n", jsonStr)
 	}
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/labstack/gommon/log"
 	"gopkg.in/doug-martin/goqu.v4"
 	// mysql dialect
+
 	_ "gopkg.in/doug-martin/goqu.v4/adapters/mysql"
 )
 
@@ -120,7 +121,7 @@ func (api *MysqlAPI) retriveTableMetadata(tableName string) *TableMetadata {
 }
 
 // Query by sql
-func (api *MysqlAPI) Query(sql string, args ...interface{}) ([]map[string]interface{}, error) {
+func (api *MysqlAPI) query(sql string, args ...interface{}) ([]map[string]interface{}, error) {
 	var rs []map[string]interface{}
 	rows, err := api.connection.Query(sql, args...)
 	if err != nil {
@@ -159,6 +160,48 @@ func (api *MysqlAPI) Query(sql string, args ...interface{}) ([]map[string]interf
 }
 
 // Exec a sql
-func (api *MysqlAPI) Exec(sql string, args ...interface{}) (sql.Result, error) {
+func (api *MysqlAPI) exec(sql string, args ...interface{}) (sql.Result, error) {
 	return api.connection.Exec(sql, args...)
+}
+
+// Create by table name and obj map
+func (api *MysqlAPI) Create(table string, obj map[string]interface{}) (rs sql.Result, err error) {
+	sql, err := api.sql.InsertByTable(table, obj)
+	if err != nil {
+		return
+	}
+	return api.exec(sql)
+}
+
+// Update by table name and obj map
+func (api *MysqlAPI) Update(table string, obj map[string]interface{}) (rs sql.Result, err error) {
+	sql, err := api.sql.UpdateByTable(table, obj)
+	if err != nil {
+		return
+	}
+	return api.exec(sql)
+}
+
+// Delete by table name and where obj
+func (api *MysqlAPI) Delete(table string, obj map[string]interface{}) (rs sql.Result, err error) {
+	sql, err := api.sql.DeleteByTable(table, obj)
+	if err != nil {
+		return
+	}
+	return api.exec(sql)
+}
+
+// Select by table name , where or id
+func (api *MysqlAPI) Select(table string, id interface{}, obj map[string]interface{}, limit int, offset int, fields []interface{}) (rs []map[string]interface{}, err error) {
+	var sql string
+	opt := QueryOption{limit: limit, offset: offset, fields: fields}
+	if id != nil {
+		sql, err = api.sql.GetByTableAndID(table, id, opt)
+	} else {
+		sql, err = api.sql.GetByTable(table, obj, opt)
+	}
+	if err != nil {
+		return
+	}
+	return api.query(sql)
 }

@@ -32,6 +32,13 @@ type ColumnMetadata struct {
 	Extra        string // extra info, for example, auto_increment
 }
 
+// QueryConfig for Select method
+type QueryOption struct {
+	limit  int
+	offset int
+	fields []interface{}
+}
+
 // GetTableMeta
 func (d *DataBaseMetadata) GetTableMeta(tableName string) *TableMetadata {
 	for _, table := range d.Tables {
