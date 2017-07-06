@@ -10,10 +10,12 @@
       "port": 2345,
       "host": "127.0.0.1",
       "program": "${workspaceRoot}/main.go",
-      "env": {},
+      "env": {
+        "API_CONN_STR": "monitor:yn0Mbx1mPcZWlvzb@tcp(stu.ecs.fornever.org:3306)/monitor"
+      },
       "args": [
-        "-c",
-        "monitor:yn0Mbx1mPcZWlvzb@tcp(stu.ecs.fornever.org:3306)/monitor"
+        "-l",
+        "0.0.0.0:1323"
       ],
       "showLog": false
     }

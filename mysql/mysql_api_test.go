@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"testing"
 )
 
-var connectionStr = "monitor:yn0Mbx1mPcZWlvzb@tcp(stu.ecs.fornever.org:3306)/monitor"
+var connectionStr = os.Getenv("API_CONN_STR")
 
 func TestCreateMysqlAPIInstance(t *testing.T) {
 	api := NewMysqlAPI(connectionStr)

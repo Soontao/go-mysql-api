@@ -7,8 +7,8 @@ import (
 
 type cliArgs struct {
 	cli.Helper
-	ConnectionStr string `cli:"*c,*conn" usage:"mysql connection str" dft:"$CONN_STR"`
-	ListenAddress string `cli:"*l,*listen" usage:"listen host and port" dft:"0.0.0.0:1323"`
+	ConnectionStr string `cli:"*c,*conn" usage:"mysql connection str" dft:"$API_CONN_STR"`
+	ListenAddress string `cli:"*l,*listen" usage:"listen host and port" dft:"$API_HOST_LS"`
 }
 
 func main() {
