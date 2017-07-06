@@ -10,7 +10,6 @@ import (
 	"github.com/labstack/gommon/log"
 	"gopkg.in/doug-martin/goqu.v4"
 	// mysql dialect
-
 	_ "gopkg.in/doug-martin/goqu.v4/adapters/mysql"
 )
 
@@ -194,6 +193,12 @@ func (api *MysqlAPI) Delete(table string, obj map[string]interface{}) (rs sql.Re
 // Select by table name , where or id
 func (api *MysqlAPI) Select(table string, id interface{}, obj map[string]interface{}, limit int, offset int, fields []interface{}) (rs []map[string]interface{}, err error) {
 	var sql string
+	for _, f := range fields {
+		if !api.databaseMetadata.TableHaveField(table, f.(string)) {
+			err = fmt.Errorf("table '%s' not have '%s' field !/n", table, f)
+			return
+		}
+	}
 	opt := QueryOption{limit: limit, offset: offset, fields: fields}
 	if id != nil {
 		sql, err = api.sql.GetByTableAndID(table, id, opt)

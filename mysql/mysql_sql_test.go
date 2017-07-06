@@ -10,8 +10,9 @@ import (
 
 func TestSQL_GetByTableAndID(t *testing.T) {
 	api := NewMysqlAPI(connectionStr)
+	f := []interface{}{"mid"}
 	defer api.Stop()
-	if sql, err := api.sql.GetByTableAndID("monitor", 1, QueryOption{1, 2, nil}); err != nil {
+	if sql, err := api.sql.GetByTableAndID("monitor", 1, QueryOption{1, 2, f}); err != nil {
 		t.Error(err)
 	} else {
 		println(sql)

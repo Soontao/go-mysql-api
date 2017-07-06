@@ -62,7 +62,7 @@ func parseQueryParams(c echo.Context) (limit int, offset int, fields []interface
 	limit, _ = strconv.Atoi(c.QueryParam("_limit"))
 	offset, _ = strconv.Atoi(c.QueryParam("_skip"))
 	if queryParam["_field"] != nil {
-		fields := make([]interface{}, len(queryParam["_field"]))
+		fields = make([]interface{}, len(queryParam["_field"]))
 		for idx, f := range queryParam["_field"] {
 			fields[idx] = f
 		}

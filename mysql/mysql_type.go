@@ -58,3 +58,30 @@ func (t *TableMetadata) GetPrimaryColumn() *ColumnMetadata {
 	}
 	return nil
 }
+
+// HaveField
+func (t *TableMetadata) HaveField(sFieldName string) bool {
+	for _, col := range t.Columns {
+		if sFieldName == col.ColumnName {
+			return true
+		}
+	}
+	return false
+}
+
+// HaveTable
+func (d *DataBaseMetadata) HaveTable(sTableName string) bool {
+	if t := d.GetTableMeta(sTableName); t != nil {
+		return true
+	}
+	return false
+}
+
+// TableHaveField
+func (d *DataBaseMetadata) TableHaveField(sTableName string, sFieldName string) bool {
+	t := d.GetTableMeta(sTableName)
+	if t == nil {
+		return false
+	}
+	return t.HaveField(sFieldName)
+}
