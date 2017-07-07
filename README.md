@@ -51,7 +51,7 @@ server.e.GET("/api/:table/:id", server.endpointTableGetSpecific)       // Retriv
 server.e.DELETE("/api/:table/:id", server.endpointTableDeleteSpecific) // Delete
 ```
 
-follow api could use **_limit**, **__skip** and **_field** query param in follow apis
+follow api could use **_limit**, **_skip** and **_field** query param in follow apis
 
 * GET /api/:table
 * GET /api/:table/:id
