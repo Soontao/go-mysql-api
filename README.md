@@ -51,7 +51,13 @@ server.e.GET("/api/:table/:id", server.endpointTableGetSpecific)       // Retriv
 server.e.DELETE("/api/:table/:id", server.endpointTableDeleteSpecific) // Delete
 ```
 
-follow api could use **_limit**, **_skip** and **_field** query param in follow apis
+pls use `application/json` MIME and json format in client request.
+
+pls use json object in Create, Update, Delete method (if need payload), and there is no support for batch process now.
+
+`UPDATE /api/:table` and `DELETE /api/:table` are use **WHERE** process payload
+
+follow api could use **_limit**, **_skip** and **_field** query param
 
 * GET /api/:table
 * GET /api/:table/:id
