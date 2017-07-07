@@ -7,6 +7,8 @@ import (
 
 	"reflect"
 
+	"database/sql"
+
 	"github.com/labstack/echo"
 	"github.com/mediocregopher/gojson"
 )
@@ -67,5 +69,12 @@ func parseQueryParams(c echo.Context) (limit int, offset int, fields []interface
 			fields[idx] = f
 		}
 	}
+	return
+}
+
+func parseSQLResult(rs sql.Result) (rt map[string]interface{}, err error) {
+	lastInsertID, err := rs.LastInsertId()
+	rowesAffected, err := rs.RowsAffected()
+	rt = map[string]interface{}{"lastInsertID": lastInsertID, "rowesAffected": rowesAffected}
 	return
 }

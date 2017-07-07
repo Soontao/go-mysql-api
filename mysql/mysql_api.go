@@ -186,12 +186,17 @@ func (api *MysqlAPI) Update(table string, obj map[string]interface{}) (rs sql.Re
 }
 
 // Delete by table name and where obj
-func (api *MysqlAPI) Delete(table string, obj map[string]interface{}) (rs sql.Result, err error) {
-	sql, err := api.sql.DeleteByTable(table, obj)
+func (api *MysqlAPI) Delete(table string, id interface{}, obj map[string]interface{}) (rs sql.Result, err error) {
+	var sSQL string
+	if id != nil {
+		sSQL, err = api.sql.DeleteByTableAndId(table, id)
+	} else {
+		sSQL, err = api.sql.DeleteByTable(table, obj)
+	}
 	if err != nil {
 		return
 	}
-	return api.exec(sql)
+	return api.exec(sSQL)
 }
 
 // Select by table name , where or id

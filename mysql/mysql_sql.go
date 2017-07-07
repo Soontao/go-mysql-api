@@ -3,6 +3,8 @@ package mysql
 import (
 	"gopkg.in/doug-martin/goqu.v4"
 	// mysql dialect
+	"fmt"
+
 	_ "gopkg.in/doug-martin/goqu.v4/adapters/mysql"
 )
 
@@ -58,6 +60,17 @@ func (s *SQL) DeleteByTable(tableName string, mWhere map[string]interface{}) (sq
 	}
 	sql = builder.Delete().Sql
 	return
+}
+
+// DeleteByTableAndId
+func (s *SQL) DeleteByTableAndId(tableName string, id interface{}) (sql string, err error) {
+	priKeyName := s.getPriKeyNameOf(tableName)
+	if priKeyName == "" {
+		err = fmt.Errorf("table `%s` dont have primary key !/n", tableName)
+		return
+	} else {
+		return s.DeleteByTable(tableName, map[string]interface{}{priKeyName: id})
+	}
 }
 
 func configBuilder(builder *goqu.Dataset, opt QueryOption) (rs *goqu.Dataset) {

@@ -37,7 +37,8 @@ func (server *MysqlAPIServer) Start(address string) *MysqlAPIServer {
 	server.e.PUT("/api/:table", server.endpointTableCreate)    // Create
 	server.e.DELETE("/api/:table", server.endpointTableDelete) // Remove
 
-	server.e.GET("/api/:table/:id", server.endpointTableGetSpecific)
+	server.e.GET("/api/:table/:id", server.endpointTableGetSpecific)       // Retrive
+	server.e.DELETE("/api/:table/:id", server.endpointTableDeleteSpecific) // Delete
 
 	server.e.Logger.Infof("server start at %s", address)
 	server.e.Logger.Fatal(server.e.Start(address))

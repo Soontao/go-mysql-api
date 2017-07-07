@@ -49,10 +49,14 @@ func (m *MysqlAPIServer) endpointTableCreate(c echo.Context) (err error) {
 	if err != nil {
 		return
 	}
-	if _, err := m.api.Create(tableName, payload); err != nil {
+	if rs, err := m.api.Create(tableName, payload); err != nil {
 		return err
 	} else {
-		return goJSONMessage(c, "create record", "success")
+		msg, err := parseSQLResult(rs)
+		if err != nil {
+			return err
+		}
+		return goJSONMessage(c, "create record", msg)
 	}
 }
 
@@ -62,10 +66,14 @@ func (m *MysqlAPIServer) endpointTableUpdate(c echo.Context) (err error) {
 	if err != nil {
 		return
 	}
-	if _, err := m.api.Update(tableName, payload); err != nil {
+	if rs, err := m.api.Update(tableName, payload); err != nil {
 		return err
 	} else {
-		return goJSONMessage(c, "update record", "success")
+		msg, err := parseSQLResult(rs)
+		if err != nil {
+			return err
+		}
+		return goJSONMessage(c, "update record", msg)
 	}
 }
 
@@ -75,9 +83,30 @@ func (m *MysqlAPIServer) endpointTableDelete(c echo.Context) (err error) {
 	if err != nil {
 		return
 	}
-	if _, err := m.api.Delete(tableName, payload); err != nil {
+	if rs, err := m.api.Delete(tableName, nil, payload); err != nil {
 		return err
 	} else {
-		return goJSONMessage(c, "deleteRecords", "success")
+		msg, err := parseSQLResult(rs)
+		if err != nil {
+			return err
+		}
+		return goJSONMessage(c, "delete record", msg)
+	}
+}
+
+func (m *MysqlAPIServer) endpointTableDeleteSpecific(c echo.Context) (err error) {
+	tableName := c.Param("table")
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return
+	}
+	if rs, err := m.api.Delete(tableName, id, nil); err != nil {
+		return err
+	} else {
+		msg, err := parseSQLResult(rs)
+		if err != nil {
+			return err
+		}
+		return goJSONMessage(c, "delete record by id", msg)
 	}
 }
