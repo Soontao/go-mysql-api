@@ -33,12 +33,12 @@ func (server *MysqlAPIServer) Start(address string) *MysqlAPIServer {
 	server.e.POST("/api/echo", server.endpointEcho)        // echo api
 
 	server.e.GET("/api/:table", server.endpointTableGet)       // Retrive
-	server.e.POST("/api/:table", server.endpointTableUpdate)   // Update
 	server.e.PUT("/api/:table", server.endpointTableCreate)    // Create
 	server.e.DELETE("/api/:table", server.endpointTableDelete) // Remove
 
 	server.e.GET("/api/:table/:id", server.endpointTableGetSpecific)       // Retrive
 	server.e.DELETE("/api/:table/:id", server.endpointTableDeleteSpecific) // Delete
+	server.e.POST("/api/:table/:id", server.endpointTableUpdateSpecific)   // Update
 
 	server.e.Logger.Infof("server start at %s", address)
 	server.e.Logger.Fatal(server.e.Start(address))

@@ -2,7 +2,6 @@ package server
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/labstack/echo"
 )
@@ -31,10 +30,7 @@ func (m *MysqlAPIServer) endpointTableGet(c echo.Context) (err error) {
 
 func (m *MysqlAPIServer) endpointTableGetSpecific(c echo.Context) (err error) {
 	tableName := c.Param("table")
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		return
-	}
+	id := c.Param("id")
 	limit, offset, fields := parseQueryParams(c)
 	if rs, err := m.api.Select(tableName, id, nil, limit, offset, fields); err != nil {
 		return err
@@ -60,13 +56,14 @@ func (m *MysqlAPIServer) endpointTableCreate(c echo.Context) (err error) {
 	}
 }
 
-func (m *MysqlAPIServer) endpointTableUpdate(c echo.Context) (err error) {
+func (m *MysqlAPIServer) endpointTableUpdateSpecific(c echo.Context) (err error) {
 	payload, err := bodyMapOf(c)
 	tableName := c.Param("table")
+	id := c.Param("id")
 	if err != nil {
 		return
 	}
-	if rs, err := m.api.Update(tableName, payload); err != nil {
+	if rs, err := m.api.Update(tableName, id, payload); err != nil {
 		return err
 	} else {
 		msg, err := parseSQLResult(rs)
@@ -96,10 +93,7 @@ func (m *MysqlAPIServer) endpointTableDelete(c echo.Context) (err error) {
 
 func (m *MysqlAPIServer) endpointTableDeleteSpecific(c echo.Context) (err error) {
 	tableName := c.Param("table")
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		return
-	}
+	id := c.Param("id")
 	if rs, err := m.api.Delete(tableName, id, nil); err != nil {
 		return err
 	} else {

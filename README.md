@@ -43,19 +43,17 @@ server.e.GET("/api/metadata", server.endpointMetadata) // metadata
 server.e.POST("/api/echo", server.endpointEcho)        // echo api
 
 server.e.GET("/api/:table", server.endpointTableGet)       // Retrive
-server.e.POST("/api/:table", server.endpointTableUpdate)   // Update
 server.e.PUT("/api/:table", server.endpointTableCreate)    // Create
 server.e.DELETE("/api/:table", server.endpointTableDelete) // Remove
 
 server.e.GET("/api/:table/:id", server.endpointTableGetSpecific)       // Retrive
 server.e.DELETE("/api/:table/:id", server.endpointTableDeleteSpecific) // Delete
+server.e.POST("/api/:table/:id", server.endpointTableUpdateSpecific)   // Update
 ```
 
 pls use `application/json` MIME and json format in client request.
 
 pls use json object in Create, Update, Delete method (if need payload), and there is no support for batch process now.
-
-`UPDATE /api/:table` and `DELETE /api/:table` are use **WHERE** process payload
 
 follow api could use **_limit**, **_skip** and **_field** query param
 

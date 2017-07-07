@@ -39,9 +39,9 @@ func (s *SQL) GetByTableAndID(tableName string, id interface{}, opt QueryOption)
 }
 
 // UpdateByTable for update specific record by id
-func (s *SQL) UpdateByTable(tableName string, record map[string]interface{}) (sql string, err error) {
+func (s *SQL) UpdateByTableAndId(tableName string, id interface{}, record map[string]interface{}) (sql string, err error) {
 	priKeyName := s.getPriKeyNameOf(tableName)
-	builder := s.sqlBuilder.From(tableName).Where(goqu.Ex{priKeyName: record[priKeyName]})
+	builder := s.sqlBuilder.From(tableName).Where(goqu.Ex{priKeyName: id})
 	sql, _, err = builder.ToUpdateSql(record)
 	return
 }

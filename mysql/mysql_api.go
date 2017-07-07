@@ -177,12 +177,17 @@ func (api *MysqlAPI) Create(table string, obj map[string]interface{}) (rs sql.Re
 }
 
 // Update by table name and obj map
-func (api *MysqlAPI) Update(table string, obj map[string]interface{}) (rs sql.Result, err error) {
-	sql, err := api.sql.UpdateByTable(table, obj)
-	if err != nil {
+func (api *MysqlAPI) Update(table string, id interface{}, obj map[string]interface{}) (rs sql.Result, err error) {
+	if id != nil {
+		sql, err := api.sql.UpdateByTableAndId(table, id, obj)
+		if err != nil {
+			return nil, err
+		}
+		return api.exec(sql)
+	} else {
+		err = fmt.Errorf("not support update by where")
 		return
 	}
-	return api.exec(sql)
 }
 
 // Delete by table name and where obj
