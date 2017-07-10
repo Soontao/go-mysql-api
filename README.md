@@ -41,7 +41,7 @@ more information about connection str, you could see [here](https://github.com/g
 if you use docker, set environment vars to setup your server
 
 ```bash
-docker run -d --restart=always -p 1323:1323 -e API_CONN_STR='user:pass@tcp(domain:port)/db' -e API_HOST_LS=':1323' theosun/go-mysql-api:latest
+docker run -d --restart=always -p 1323:1323 -e API_CONN_STR='user:pass@tcp(domain:port)/db' -e API_HOST_LS=':1323' theosun/go-mysql-api:v1
 ```
 
 ## apis
