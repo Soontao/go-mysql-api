@@ -6,8 +6,8 @@ import (
 	"github.com/labstack/gommon/log"
 )
 
-// L public Logger
-var L = NewLogger()
+// Logger public Logger
+var Logger = NewLogger()
 
 // NewLogger for instance
 func NewLogger() (l *log.Logger) {

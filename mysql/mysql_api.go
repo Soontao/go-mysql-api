@@ -3,15 +3,12 @@ package mysql
 import (
 	"database/sql"
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/Soontao/go-mysql-api/lib"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/labstack/gommon/log"
 	"gopkg.in/doug-martin/goqu.v4"
-	// mysql dialect
-	_ "github.com/go-sql-driver/mysql"
-	// registe mysql driver
 	_ "gopkg.in/doug-martin/goqu.v4/adapters/mysql"
 )
 
@@ -124,37 +121,34 @@ func (api *MysqlAPI) retriveTableMetadata(tableName string) *TableMetadata {
 // Query by sql
 func (api *MysqlAPI) query(sql string, args ...interface{}) ([]map[string]interface{}, error) {
 	var rs []map[string]interface{}
-	lib.L.Debugf("query sql: '%s'", sql)
+	lib.Logger.Debugf("query sql: '%s'", sql)
 	rows, err := api.connection.Query(sql, args...)
 	if err != nil {
 		return nil, err
 	}
+	// mysql driver not implement rows.ColumnTypes
 	cols, _ := rows.Columns()
-
 	for rows.Next() {
 		columns := make([]interface{}, len(cols))
 		columnPointers := make([]interface{}, len(cols))
 		for i := range columns {
 			columnPointers[i] = &columns[i]
 		}
-
 		if err := rows.Scan(columnPointers...); err != nil {
 			return nil, err
 		}
-
 		m := make(map[string]interface{})
-		// NEED TO DETECT COLUMN TYPE, and convert to correct type
-		// NOT IMPLEMENT NOW
-		// CURRENT METHOD IS TRY TO CONVERT STRING TO INT/FLOAT
 		for i, colName := range cols {
-			val := fmt.Sprintf("%s", *columnPointers[i].(*interface{}))
-			m[colName] = val
-			if iVal, err := strconv.Atoi(val); err == nil {
-				m[colName] = iVal
+			// Yap! Any integer based type will use int type
+			// Other type will convert to string, include decimal, date and others
+			colV := *columnPointers[i].(*interface{})
+			switch (colV).(type) {
+			case int64:
+				colV = colV.(int64)
+			case []uint8:
+				colV = fmt.Sprintf("%s", colV)
 			}
-			if fVal, err := strconv.ParseFloat(val, 64); err == nil {
-				m[colName] = fVal
-			}
+			m[colName] = colV
 		}
 		rs = append(rs, m)
 	}
@@ -163,7 +157,7 @@ func (api *MysqlAPI) query(sql string, args ...interface{}) ([]map[string]interf
 
 // Exec a sql
 func (api *MysqlAPI) exec(sql string, args ...interface{}) (sql.Result, error) {
-	lib.L.Debugf("exec sql: '%s'", sql)
+	lib.Logger.Debugf("exec sql: '%s'", sql)
 	return api.connection.Exec(sql, args...)
 }
 

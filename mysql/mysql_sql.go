@@ -2,7 +2,6 @@ package mysql
 
 import (
 	"gopkg.in/doug-martin/goqu.v4"
-	// mysql dialect
 	"fmt"
 
 	_ "gopkg.in/doug-martin/goqu.v4/adapters/mysql"

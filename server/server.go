@@ -19,7 +19,7 @@ func NewMysqlAPIServer(dbURI string) *MysqlAPIServer {
 	server.e = echo.New()
 	server.e.HTTPErrorHandler = customErrorHandler
 	server.e.HideBanner = true
-	server.e.Logger = lib.L
+	server.e.Logger = lib.Logger
 	server.e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 		Format: "[REQ] ${time_rfc3339_nano} ${method} (HTTP${status}) ${uri} ${latency}ns\n",
 	}))
