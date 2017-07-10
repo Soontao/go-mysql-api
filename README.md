@@ -12,6 +12,8 @@ go get -u -v https://github.com/Soontao/go-mysql-api
 
 or download binary from [release page](https://github.com/Soontao/go-mysql-api/releases/tag/v1.0.0) !
 
+or with [docker container](https://hub.docker.com/r/theosun/go-mysql-api/)
+
 ## command args
 
 you could run go-mysql-api from cli directly
@@ -35,6 +37,12 @@ go-mysql-api -c "user:pass@tcp(domain:port)/db" -l "0.0.0.0:1323"
 ```
 
 more information about connection str, you could see [here](https://github.com/go-sql-driver/mysql#examples)
+
+if you use docker, set environment vars to setup your server
+
+```bash
+docker run -d --restart=always -p 1323:1323 -e API_CONN_STR='user:pass@tcp(domain:port)/db' -e API_HOST_LS=':1323' theosun/go-mysql-api:latest
+```
 
 ## apis
 
