@@ -70,7 +70,7 @@ func (s *SQL) DeleteByTableAndId(tableName string, id interface{}) (sql string, 
 	}
 }
 
-func (s *SQL) configBuilder(builder *goqu.Dataset, tName string, opt QueryOption) (rs *goqu.Dataset) {
+func (s *SQL) configBuilder(builder *goqu.Dataset, priT string, opt QueryOption) (rs *goqu.Dataset) {
 	rs = builder
 	if opt.limit != 0 {
 		rs = rs.Limit(uint(opt.limit))
@@ -81,18 +81,18 @@ func (s *SQL) configBuilder(builder *goqu.Dataset, tName string, opt QueryOption
 	if opt.fields != nil {
 		rs = rs.Select(opt.fields...)
 	}
-	for _, w := range opt.wheres {
-		rs = rs.Where(goqu.Ex{w.Field.(string): w.Operator})
+	for f, w := range opt.wheres {
+		rs = rs.Where(goqu.Ex{f: w})
 	}
 	for _, l := range opt.links {
 		refT := l.(string)
 		refK := s.getPriKeyNameOf(refT)
-		priK := s.getPriKeyNameOf(tName)
-		if s.dbMeta.TableHaveField(tName, refK) {
-			rs = rs.InnerJoin(goqu.I(refT), goqu.On(goqu.I(fmt.Sprintf("%s.%s", refT, refK)).Eq(goqu.I(fmt.Sprintf("%s.%s", tName, refK)))))
+		priK := s.getPriKeyNameOf(priT)
+		if s.dbMeta.TableHaveField(priT, refK) {
+			rs = rs.InnerJoin(goqu.I(refT), goqu.On(goqu.I(fmt.Sprintf("%s.%s", refT, refK)).Eq(goqu.I(fmt.Sprintf("%s.%s", priT, refK)))))
 		}
 		if s.dbMeta.TableHaveField(refT, priK) {
-			rs = rs.InnerJoin(goqu.I(refT), goqu.On(goqu.I(fmt.Sprintf("%s.%s", refT, priK)).Eq(goqu.I(fmt.Sprintf("%s.%s", tName, priK)))))
+			rs = rs.InnerJoin(goqu.I(refT), goqu.On(goqu.I(fmt.Sprintf("%s.%s", refT, priK)).Eq(goqu.I(fmt.Sprintf("%s.%s", priT, priK)))))
 		}
 	}
 	return

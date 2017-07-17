@@ -67,26 +67,38 @@ pls use json object in Create, Update, Delete method (if need payload), and ther
 
 ## Advance query
 
-follow api could use **_limit**, **_skip**, **_field**, **_where**, **_link** query param
+query apis could use **_limit**, **_skip**, **_field**, **_where**, **_link** query param
 
-* GET /api/:table
-* GET /api/:table/:id
-
-*filter fields*
+* filter fields
 
 ```bash
 http :1323/api/monitor_log _limit==10 _field==lid _field==mid _field==success _skip==10 -v
 
 # GET /api/monitor_log?_limit=10&_field=lid&_field=mid&_field=success&_skip=10 HTTP/1.1
 
-# SELECT `lid`, `mid`, `success` FROM `monitor_log` LIMIT 10 OFFSET 10
 ```
-*auto join*
+
+```sql
+SELECT `lid`, `mid`, `success`
+  FROM `monitor_log`
+  LIMIT 10
+  OFFSET 10
+```
+
+* auto join
 
 ```bash
 # GET /api/monitor?_link=user&_link=monitor_log&_limit=100&_where='user.uid'.eq(11)
+```
 
-# SELECT * FROM `monitor` INNER JOIN `user` ON (`user`.`uid` = `monitor`.`uid`) INNER JOIN `monitor_log` ON (`monitor_log`.`mid` = `monitor`.`mid`) WHERE (`user`.`uid` = '11') LIMIT 100
+```sql
+SELECT * FROM `monitor`
+  INNER JOIN `user`
+    ON (`user`.`uid` = `monitor`.`uid`)
+  INNER JOIN `monitor_log`
+    ON (`monitor_log`.`mid` = `monitor`.`mid`)
+  WHERE (`user`.`uid` = '11')
+  LIMIT 100
 ```
 
 ## any tests ?

@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
-	goqu "gopkg.in/doug-martin/goqu.v4"
+	"gopkg.in/doug-martin/goqu.v4"
 
 	"reflect"
 
@@ -13,7 +13,6 @@ import (
 
 	"regexp"
 
-	"github.com/Soontao/go-mysql-api/mysql"
 	"github.com/labstack/echo"
 	"github.com/mediocregopher/gojson"
 )
@@ -64,7 +63,7 @@ func customErrorHandler(err error, c echo.Context) {
 	}
 }
 
-func parseQueryParams(c echo.Context) (limit int, offset int, fields []interface{}, wheres []mysql.QueryOptionWhere, links []interface{}) {
+func parseQueryParams(c echo.Context) (limit int, offset int, fields []interface{}, wheres map[string]goqu.Op, links []interface{}) {
 	queryParam := c.QueryParams()
 	limit, _ = strconv.Atoi(c.QueryParam("_limit"))
 	offset, _ = strconv.Atoi(c.QueryParam("_skip"))
@@ -82,11 +81,11 @@ func parseQueryParams(c echo.Context) (limit int, offset int, fields []interface
 	}
 	r := regexp.MustCompile("\\'(.*?)\\'\\.([\\w]+)\\((.*?)\\)")
 	if queryParam["_where"] != nil {
+		wheres = make(map[string]goqu.Op)
 		for _, sWhere := range queryParam["_where"] {
 			arr := r.FindStringSubmatch(sWhere)
 			if len(arr) > 3 {
-				w := mysql.QueryOptionWhere{Field: arr[1], Operator: goqu.Op{arr[2]: arr[3]}}
-				wheres = append(wheres, w)
+				wheres[arr[1]] = goqu.Op{arr[2]: arr[3]}
 			}
 		}
 	}

@@ -42,7 +42,7 @@ type QueryOption struct {
 	offset int
 	fields []interface{}
 	links  []interface{}
-	wheres []QueryOptionWhere
+	wheres map[string]goqu.Op
 }
 
 // QueryOptionWhere wrap
