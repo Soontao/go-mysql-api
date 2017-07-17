@@ -65,12 +65,14 @@ pls use `application/json` MIME and json format in client request.
 
 pls use json object in Create, Update, Delete method (if need payload), and there is no support for batch process now.
 
-follow api could use **_limit**, **_skip** and **_field** query param
+## Advance query
+
+follow api could use **_limit**, **_skip**, **_field**, **_where**, **_link** query param
 
 * GET /api/:table
 * GET /api/:table/:id
 
-follow is an example
+*filter fields*
 
 ```bash
 http :1323/api/monitor_log _limit==10 _field==lid _field==mid _field==success _skip==10 -v
@@ -78,6 +80,13 @@ http :1323/api/monitor_log _limit==10 _field==lid _field==mid _field==success _s
 # GET /api/monitor_log?_limit=10&_field=lid&_field=mid&_field=success&_skip=10 HTTP/1.1
 
 # SELECT `lid`, `mid`, `success` FROM `monitor_log` LIMIT 10 OFFSET 10
+```
+*auto join*
+
+```bash
+# GET /api/monitor?_link=user&_link=monitor_log&_limit=100&_where='user.uid'.eq(11)
+
+# SELECT * FROM `monitor` INNER JOIN `user` ON (`user`.`uid` = `monitor`.`uid`) INNER JOIN `monitor_log` ON (`monitor_log`.`mid` = `monitor`.`mid`) WHERE (`user`.`uid` = '11') LIMIT 100
 ```
 
 ## any tests ?

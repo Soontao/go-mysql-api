@@ -3,5 +3,6 @@
   "files.autoSave": "off",
   "go.testEnvVars": {
     "API_CONN_STR": "monitor:yn0Mbx1mPcZWlvzb@tcp(stu.ecs.fornever.org:3306)/monitor"
-  }
+  },
+  "cSpell.enabled": false
 }

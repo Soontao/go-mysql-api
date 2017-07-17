@@ -20,8 +20,8 @@ func (m *MysqlAPIServer) endpointEcho(c echo.Context) (err error) {
 
 func (m *MysqlAPIServer) endpointTableGet(c echo.Context) (err error) {
 	tableName := c.Param("table")
-	limit, offset, fields := parseQueryParams(c)
-	if rs, err := m.api.Select(tableName, nil, nil, limit, offset, fields); err != nil {
+	limit, offset, fields, wheres, links := parseQueryParams(c)
+	if rs, err := m.api.Select(tableName, nil, limit, offset, fields, wheres, links); err != nil {
 		return err
 	} else {
 		return goJSONMessage(c, "get table", rs)
@@ -31,8 +31,8 @@ func (m *MysqlAPIServer) endpointTableGet(c echo.Context) (err error) {
 func (m *MysqlAPIServer) endpointTableGetSpecific(c echo.Context) (err error) {
 	tableName := c.Param("table")
 	id := c.Param("id")
-	limit, offset, fields := parseQueryParams(c)
-	if rs, err := m.api.Select(tableName, id, nil, limit, offset, fields); err != nil {
+	limit, offset, fields, wheres, links := parseQueryParams(c)
+	if rs, err := m.api.Select(tableName, id, limit, offset, fields, wheres, links); err != nil {
 		return err
 	} else {
 		return goJSONMessage(c, "get table by id", rs)

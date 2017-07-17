@@ -1,5 +1,9 @@
 package mysql
 
+import (
+	"gopkg.in/doug-martin/goqu.v4"
+)
+
 // DataBaseMetadata metadata of a database
 type DataBaseMetadata struct {
 	DatabaseName string           // database name
@@ -37,6 +41,14 @@ type QueryOption struct {
 	limit  int
 	offset int
 	fields []interface{}
+	links  []interface{}
+	wheres []QueryOptionWhere
+}
+
+// QueryOptionWhere wrap
+type QueryOptionWhere struct {
+	Field    interface{}
+	Operator goqu.Op
 }
 
 // GetTableMeta

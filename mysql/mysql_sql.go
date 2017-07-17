@@ -1,8 +1,9 @@
 package mysql
 
 import (
-	"gopkg.in/doug-martin/goqu.v4"
 	"fmt"
+
+	"gopkg.in/doug-martin/goqu.v4"
 
 	_ "gopkg.in/doug-martin/goqu.v4/adapters/mysql"
 )
@@ -18,12 +19,9 @@ func (s *SQL) getPriKeyNameOf(tableName string) string {
 }
 
 // GetByTable with filter
-func (s *SQL) GetByTable(tableName string, mWhere map[string]interface{}, opt QueryOption) (sql string, err error) {
+func (s *SQL) GetByTable(tableName string, opt QueryOption) (sql string, err error) {
 	builder := s.sqlBuilder.From(tableName)
-	for k, v := range mWhere {
-		builder = builder.Where(goqu.Ex{k: v})
-	}
-	builder = configBuilder(builder, opt)
+	builder = s.configBuilder(builder, tableName, opt)
 	sql, _, err = builder.ToSql()
 	return
 }
@@ -32,7 +30,7 @@ func (s *SQL) GetByTable(tableName string, mWhere map[string]interface{}, opt Qu
 func (s *SQL) GetByTableAndID(tableName string, id interface{}, opt QueryOption) (sql string, err error) {
 	priKeyName := s.getPriKeyNameOf(tableName)
 	builder := s.sqlBuilder.From(tableName).Where(goqu.Ex{priKeyName: id})
-	builder = configBuilder(builder, opt)
+	builder = s.configBuilder(builder, tableName, opt)
 	sql, _, err = builder.ToSql()
 	return sql, err
 }
@@ -72,7 +70,7 @@ func (s *SQL) DeleteByTableAndId(tableName string, id interface{}) (sql string, 
 	}
 }
 
-func configBuilder(builder *goqu.Dataset, opt QueryOption) (rs *goqu.Dataset) {
+func (s *SQL) configBuilder(builder *goqu.Dataset, tName string, opt QueryOption) (rs *goqu.Dataset) {
 	rs = builder
 	if opt.limit != 0 {
 		rs = rs.Limit(uint(opt.limit))
@@ -82,6 +80,20 @@ func configBuilder(builder *goqu.Dataset, opt QueryOption) (rs *goqu.Dataset) {
 	}
 	if opt.fields != nil {
 		rs = rs.Select(opt.fields...)
+	}
+	for _, w := range opt.wheres {
+		rs = rs.Where(goqu.Ex{w.Field.(string): w.Operator})
+	}
+	for _, l := range opt.links {
+		refT := l.(string)
+		refK := s.getPriKeyNameOf(refT)
+		priK := s.getPriKeyNameOf(tName)
+		if s.dbMeta.TableHaveField(tName, refK) {
+			rs = rs.InnerJoin(goqu.I(refT), goqu.On(goqu.I(fmt.Sprintf("%s.%s", refT, refK)).Eq(goqu.I(fmt.Sprintf("%s.%s", tName, refK)))))
+		}
+		if s.dbMeta.TableHaveField(refT, priK) {
+			rs = rs.InnerJoin(goqu.I(refT), goqu.On(goqu.I(fmt.Sprintf("%s.%s", refT, priK)).Eq(goqu.I(fmt.Sprintf("%s.%s", tName, priK)))))
+		}
 	}
 	return
 }

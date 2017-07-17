@@ -199,7 +199,7 @@ func (api *MysqlAPI) Delete(table string, id interface{}, obj map[string]interfa
 }
 
 // Select by table name , where or id
-func (api *MysqlAPI) Select(table string, id interface{}, obj map[string]interface{}, limit int, offset int, fields []interface{}) (rs []map[string]interface{}, err error) {
+func (api *MysqlAPI) Select(table string, id interface{}, limit int, offset int, fields []interface{}, wheres []QueryOptionWhere, links []interface{}) (rs []map[string]interface{}, err error) {
 	var sql string
 	for _, f := range fields {
 		if !api.databaseMetadata.TableHaveField(table, f.(string)) {
@@ -207,11 +207,11 @@ func (api *MysqlAPI) Select(table string, id interface{}, obj map[string]interfa
 			return
 		}
 	}
-	opt := QueryOption{limit: limit, offset: offset, fields: fields}
+	opt := QueryOption{limit: limit, offset: offset, fields: fields, wheres: wheres, links: links}
 	if id != nil {
 		sql, err = api.sql.GetByTableAndID(table, id, opt)
 	} else {
-		sql, err = api.sql.GetByTable(table, obj, opt)
+		sql, err = api.sql.GetByTable(table, opt)
 	}
 	if err != nil {
 		return
