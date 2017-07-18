@@ -224,9 +224,11 @@ SELECT * FROM `monitor`
   INNER JOIN `monitor_log`
     ON (`monitor_log`.`mid` = `monitor`.`mid`)
   WHERE
-    ((`user`.`uid` IN ('11', '22'))
-  AND
-    (`monitor_log`.`success` = 'false'))
+    (
+      (`user`.`uid` IN ('11', '22'))
+    AND
+      (`monitor_log`.`success` = 'false')
+    )
   LIMIT 100
 
 ```
