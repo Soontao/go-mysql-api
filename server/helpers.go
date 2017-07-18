@@ -15,6 +15,7 @@ import (
 
 	"github.com/labstack/echo"
 	"github.com/mediocregopher/gojson"
+	"strings"
 )
 
 // Message
@@ -84,8 +85,14 @@ func parseQueryParams(c echo.Context) (limit int, offset int, fields []interface
 		wheres = make(map[string]goqu.Op)
 		for _, sWhere := range queryParam["_where"] {
 			arr := r.FindStringSubmatch(sWhere)
-			if len(arr) > 3 {
-				wheres[arr[1]] = goqu.Op{arr[2]: arr[3]}
+			if len(arr) == 4 {
+				switch arr[2] {
+				case "in", "notIn":
+					wheres[arr[1]] = goqu.Op{arr[2]: strings.Split(arr[3], ",")}
+				case "like", "is", "neq", "isNot", "eq":
+					wheres[arr[1]] = goqu.Op{arr[2]: arr[3]}
+				}
+
 			}
 		}
 	}

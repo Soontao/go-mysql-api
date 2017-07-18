@@ -7,6 +7,9 @@ import (
 )
 
 func (m *MysqlAPIServer) endpointMetadata(c echo.Context) error {
+	if c.QueryParam("simple") == "true" {
+		return goJSON(c, http.StatusOK, m.api.GetDatabaseMetadata().GetSimpleMetadata())
+	}
 	return goJSON(c, http.StatusOK, m.api.GetDatabaseMetadata())
 }
 
@@ -16,6 +19,11 @@ func (m *MysqlAPIServer) endpointEcho(c echo.Context) (err error) {
 		return err
 	}
 	return goJSONMessage(c, "echo api", bodyM)
+}
+
+func (m *MysqlAPIServer) endpointUpdateMetadata(c echo.Context) error {
+	m.api.UpdateAPIMetadata()
+	return goJSONMessage(c, "metadata refreshed", nil)
 }
 
 func (m *MysqlAPIServer) endpointTableGet(c echo.Context) (err error) {

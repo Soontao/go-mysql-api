@@ -44,6 +44,14 @@ func (api *MysqlAPI) GetDatabaseMetadata() *DataBaseMetadata {
 	return api.databaseMetadata
 }
 
+// UpdateAPIMetadata use to update the metadata of the MySQLAPI instance
+//
+// If database tables structure changed, it will be useful
+func (api *MysqlAPI) UpdateAPIMetadata() *MysqlAPI {
+	api.databaseMetadata = api.retriveDatabaseMetadata(api.CurrentDatabaseName())
+	return api
+}
+
 // GetConnectionPool which Pool is Singleton Connection Pool
 func (api *MysqlAPI) GetConnectionPool(dbURI string) *sql.DB {
 	if api.connection == nil {

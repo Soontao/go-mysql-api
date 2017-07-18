@@ -45,12 +45,6 @@ type QueryOption struct {
 	wheres map[string]goqu.Op
 }
 
-// QueryOptionWhere wrap
-type QueryOptionWhere struct {
-	Field    interface{}
-	Operator goqu.Op
-}
-
 // GetTableMeta
 func (d *DataBaseMetadata) GetTableMeta(tableName string) *TableMetadata {
 	for _, table := range d.Tables {
@@ -59,6 +53,19 @@ func (d *DataBaseMetadata) GetTableMeta(tableName string) *TableMetadata {
 		}
 	}
 	return nil
+}
+
+// GetSimpleMetadata
+func (d *DataBaseMetadata) GetSimpleMetadata() (rt map[string]map[string]string) {
+	rt = make(map[string]map[string]string)
+	for _, table := range d.Tables {
+		t := make(map[string]string)
+		for _, f := range table.Columns {
+			t[f.ColumnName] = f.ColumnType
+		}
+		rt[table.TableName] = t
+	}
+	return
 }
 
 // GetPrimaryColumn

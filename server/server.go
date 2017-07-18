@@ -29,8 +29,9 @@ func NewMysqlAPIServer(dbURI string) *MysqlAPIServer {
 
 // Start server
 func (server *MysqlAPIServer) Start(address string) *MysqlAPIServer {
-	server.e.GET("/api/metadata", server.endpointMetadata) // metadata
-	server.e.POST("/api/echo", server.endpointEcho)        // echo api
+	server.e.GET("/api/metadata", server.endpointMetadata)             // metadata
+	server.e.POST("/api/echo", server.endpointEcho)                    // echo api
+	server.e.Any("/api/updatemetadata", server.endpointUpdateMetadata) // update metadata
 
 	server.e.GET("/api/:table", server.endpointTableGet)       // Retrive
 	server.e.PUT("/api/:table", server.endpointTableCreate)    // Create
