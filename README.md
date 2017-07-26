@@ -10,7 +10,7 @@ apify mysql database. based on [Echo](https://github.com/labstack/echo), [goqu](
 go get -u -v https://github.com/Soontao/go-mysql-api
 ```
 
-or download binary from [release page](https://github.com/Soontao/go-mysql-api/releases/tag/v1.0.0) !
+or download binary from [release page](https://github.com/Soontao/go-mysql-api/releases) !
 
 or with [docker container](https://hub.docker.com/r/theosun/go-mysql-api/)
 
