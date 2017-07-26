@@ -22,47 +22,58 @@ you could run go-mysql-api from cli directly
 go-mysql-api --help
 Options:
 
-  -h, --help                     display help information
-  -c, --*conn[=$API_CONN_STR]   *mysql connection str
-  -l, --*listen[=$API_HOST_LS]  *listen host and port
+  -h, --help                        display help information
+  -c, --*conn[=$API_CONN_STR]      *mysql connection str
+  -l, --*listen[=$API_HOST_LS]     *listen host and port
+  -n, --noinfo[=$API_NO_USE_INFO]   dont use mysql information shcema
+
 ```
+
+defaultly, server will retrive metadata from mysql information schema, if there are any problem, pls use `-n` option
 
 ## start
 
 you could start will cli args, but env var also works
 
 ```bash
-go-mysql-api -c "user:pass@tcp(domain:port)/db" -l "0.0.0.0:1323"
-[INFO] 2017-07-07T10:28:42.431074+08:00 server start at 0.0.0.0:1323
+go-mysql-api -c "monitor:pass@tcp(mysql:3306)/monitor" -l "0.0.0.0:1323"
+
+[INFO] 2017-07-26T15:09:48.4086821+08:00 connected to mysql with conn_str: monitor:pass@tcp(mysql:3306)/monitor
+[INFO] 2017-07-26T15:09:49.7367783+08:00 retrived metadata from mysql database: monitor
+[INFO] 2017-07-26T15:09:49.7367783+08:00 server start at :1323
 ```
 
 more information about connection str, you could see [here](https://github.com/go-sql-driver/mysql#examples)
-
 
 ## docker
 
 if you use docker, set environment vars to setup your server
 
 ```bash
-docker run -d --restart=always -p 1323:1323 -e API_CONN_STR='user:pass@tcp(domain:port)/db' -e API_HOST_LS=':1323' theosun/go-mysql-api:v1
+docker run -d --restart=always --link mariadb:mysql -p 1323:1323 -e API_CONN_STR='user:pass@tcp(domain:port)/db' -e API_HOST_LS=':1323' theosun/go-mysql-api:latest
 ```
+
+use correct link, or config with public mysql database
 
 ## apis
 
 if you have any web dev experience, apis will easy to understand
 
 ```golang
-server.e.GET("/api/metadata", server.endpointMetadata)             // metadata
-server.e.POST("/api/echo", server.endpointEcho)                    // echo api
-server.e.Any("/api/updatemetadata", server.endpointUpdateMetadata) // update metadata
+server.e.GET("/api/metadata", server.endpointMetadata).Name = "Database Metadata"
+server.e.POST("/api/echo", server.endpointEcho).Name = "Echo API"
+server.e.GET("/api/endpoints", server.endpointServerEndpoints).Name = "Server Endpoints"
+server.e.GET("/api/updatemetadata", server.endpointUpdateMetadata).Name = "Update DB Metadata"
 
-server.e.GET("/api/:table", server.endpointTableGet)       // Retrive
-server.e.PUT("/api/:table", server.endpointTableCreate)    // Create
-server.e.DELETE("/api/:table", server.endpointTableDelete) // Remove
+server.e.GET("/api/:table", server.endpointTableGet).Name = "Retrive Some Records"
+server.e.PUT("/api/:table", server.endpointTableCreate).Name = "Create Single Record"
+server.e.DELETE("/api/:table", server.endpointTableDelete).Name = "Remove Some Records"
 
-server.e.GET("/api/:table/:id", server.endpointTableGetSpecific)       // Retrive
-server.e.DELETE("/api/:table/:id", server.endpointTableDeleteSpecific) // Delete
-server.e.POST("/api/:table/:id", server.endpointTableUpdateSpecific)   // Update
+server.e.GET("/api/:table/:id", server.endpointTableGetSpecific).Name = "Retrive Record By ID"
+server.e.DELETE("/api/:table/:id", server.endpointTableDeleteSpecific).Name = "Delete Record By ID"
+server.e.POST("/api/:table/:id", server.endpointTableUpdateSpecific).Name = "Update Record By ID"
+
+server.e.PUT("/api/batch/:table", server.endpointBatchCreate).Name = "Batch Create Record"
 ```
 
 pls use `application/json` MIME and json format in client request.
@@ -71,63 +82,51 @@ pls use json object(`{object}`) in Create, Update, Delete method (if need payloa
 
 ## Get DB Metadata
 
-You could use `/api/metadata` get database metadata, or with simple query param get simple metadata
-
-```bash
-
-# GET /api/metadata?simple=true
-
-```
+You could use **GET** `/api/metadata` get database metadata, or with `?simple=true` get simple metadata
 
 ```json
 
 {
-    "monitor": {
-        "create_at": "datetime",
-        "mid": "int(11)",
-        "target": "varchar(255)",
-        "type": "enum('TCP','HTTP')",
-        "uid": "int(11)"
-    },
-    "monitor_log": {
-        "create_at": "datetime",
-        "duration": "int(5)",
-        "lid": "int(11)",
-        "mid": "int(11)",
-        "success": "tinyint(1)"
-    },
-    "sessions": {
-        "data": "text",
-        "expires": "int(11) unsigned",
-        "session_id": "varchar(128)"
-    },
-    "user": {
-        "create_at": "datetime",
-        "uid": "int(11)",
-        "uname": "varchar(128)",
-        "utoken": "varchar(32)"
-    }
+    "[BASE TABLE] (1 rows) sessions": [
+        "session_id varchar(128)  NullAble(NO) ''",
+        "expires int(11) unsigned  NullAble(NO) ''",
+        "data text  NullAble(YES) ''"
+    ],
+    "[BASE TABLE] (111802 rows) monitor_log": [
+        "lid int(11)  NullAble(NO) 'Log ID'",
+        "mid int(11)  NullAble(NO) 'Monitor ID'",
+        "success tinyint(1)  NullAble(NO) 'Is Success'",
+        "duration int(5)  NullAble(NO) 'Request duration'",
+        "create_at datetime current_timestamp() NullAble(NO) ''"
+    ],
+    "[BASE TABLE] (2 rows) user": [
+        "uid int(11)  NullAble(NO) 'User ID'",
+        "uname varchar(128)  NullAble(NO) 'User Name/Email'",
+        "utoken varchar(32)  NullAble(NO) 'User Token'",
+        "create_at datetime current_timestamp() NullAble(NO) ''"
+    ],
+    "[BASE TABLE] (3 rows) monitor": [
+        "mid int(11)  NullAble(NO) 'Monitor ID'",
+        "uid int(11)  NullAble(NO) 'User ID'",
+        "type enum('TCP','HTTP')  NullAble(NO) 'Monitor Type'",
+        "target varchar(255)  NullAble(NO) 'Monitor check target'",
+        "create_at datetime current_timestamp() NullAble(YES) ''"
+    ]
 }
 
 ```
 
 ## operate record
 
-use **PUT** method to create a record
-
-```bash
-
-# POST /api/user
-
-```
+* use **PUT `/api/user`** method to create new user record
 
 body
 
 ```json
 
 {
-	"uname":"fjdasl@fjdksalf",
-	"utoken":"atoken"
+    "uname":"fjdasl@fjdksalf",
+    "utoken":"atoken"
 }
 
 ```
@@ -147,7 +146,7 @@ response
 
 ```
 
-and use **GET `/api/user/31`** to get our created record
+* use **GET `/api/user/31`** to get our created record
 
 ```json
 
@@ -165,7 +164,7 @@ and use **GET `/api/user/31`** to get our created record
 }
 ```
 
-and use **DELETE `/api/user/31`** to delete the record, (body is not needed)
+* use **DELETE `/api/user/31`** to delete the record, (body is not needed)
 
 ```json
 

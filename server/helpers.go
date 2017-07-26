@@ -37,7 +37,7 @@ func goJSON(c echo.Context, code int, i interface{}) error {
 	return c.JSONBlob(code, b)
 }
 
-func goJSONMessage(c echo.Context, m string, i interface{}) error {
+func JSONMessage(c echo.Context, m string, i interface{}) error {
 	return goJSON(c, http.StatusOK, &Message{http.StatusOK, m, i})
 }
 
@@ -53,6 +53,12 @@ func bodyMapOf(c echo.Context) (jsonMap map[string]interface{}, err error) {
 	jsonMap = make(map[string]interface{})
 	err = json.NewDecoder(c.Request().Body).Decode(&jsonMap)
 	return jsonMap, err
+}
+
+func bodySliceOf(c echo.Context) (jsonSlice []interface{}, err error) {
+	jsonSlice = make([]interface{}, 0)
+	err = json.NewDecoder(c.Request().Body).Decode(&jsonSlice)
+	return
 }
 
 func customErrorHandler(err error, c echo.Context) {

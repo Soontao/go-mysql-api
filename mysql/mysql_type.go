@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"gopkg.in/doug-martin/goqu.v4"
+	"fmt"
 )
 
 // DataBaseMetadata metadata of a database
@@ -12,8 +13,12 @@ type DataBaseMetadata struct {
 
 // TableMetadata metadata of a table
 type TableMetadata struct {
-	TableName string            //table name
-	Columns   []*ColumnMetadata //collections of column
+	TableName    string //table name
+	TableType    string
+	TableRows    int64
+	CurrentIncre int64
+	Comment      string
+	Columns      []*ColumnMetadata //collections of column
 }
 
 // ColumnMetadata metadata of a column
@@ -31,9 +36,12 @@ type ColumnMetadata struct {
 	// permitted within the column. The column is the first column
 	// of a nonunique index or a unique-valued index that can contain
 	// NULL values.
-	Key          string // column key type
-	DefaultValue string // default value if have
-	Extra        string // extra info, for example, auto_increment
+	Key              string // column key type
+	DefaultValue     string // default value if have
+	Extra            string // extra info, for example, auto_increment
+	OridinalSequence int64
+	DataType         string
+	Comment          string
 }
 
 // QueryConfig for Select method
@@ -56,14 +64,14 @@ func (d *DataBaseMetadata) GetTableMeta(tableName string) *TableMetadata {
 }
 
 // GetSimpleMetadata
-func (d *DataBaseMetadata) GetSimpleMetadata() (rt map[string]map[string]string) {
-	rt = make(map[string]map[string]string)
+func (d *DataBaseMetadata) GetSimpleMetadata() (rt map[string]interface{}) {
+	rt = make(map[string]interface{})
 	for _, table := range d.Tables {
-		t := make(map[string]string)
-		for _, f := range table.Columns {
-			t[f.ColumnName] = f.ColumnType
+		cls := make([]interface{}, len(table.Columns))
+		for idx, i_column := range table.Columns {
+			cls[idx] = fmt.Sprintf("%s %s %s NullAble(%s) '%s'", i_column.ColumnName, i_column.ColumnType, i_column.DefaultValue, i_column.NullAble, i_column.Comment)
 		}
-		rt[table.TableName] = t
+		rt[fmt.Sprintf("[%s] (%d rows) %s", table.TableType, table.TableRows, table.TableName)] = cls
 	}
 	return
 }

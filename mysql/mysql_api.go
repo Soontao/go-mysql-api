@@ -14,19 +14,22 @@ import (
 
 // MysqlAPI
 type MysqlAPI struct {
-	connection       *sql.DB
-	databaseMetadata *DataBaseMetadata
-	sql              *SQL
+	connection           *sql.DB           // mysql connection
+	databaseMetadata     *DataBaseMetadata // database metadata
+	sql                  *SQL              // goqu sql builder
+	useInformationSchema bool
 }
 
 // NewMysqlAPI create new MysqlAPI instance
-func NewMysqlAPI(dbURI string) *MysqlAPI {
-	newAPI := &MysqlAPI{}
-	newAPI.GetConnectionPool(dbURI)
-	log.Debugf("connect to mysql with conn_str: %s", dbURI)
-	newAPI.databaseMetadata = newAPI.retriveDatabaseMetadata(newAPI.CurrentDatabaseName())
-	newAPI.sql = &SQL{goqu.New("mysql", newAPI.connection), newAPI.databaseMetadata}
-	return newAPI
+func NewMysqlAPI(dbURI string, useInformationSchema bool) (api *MysqlAPI) {
+	api = &MysqlAPI{}
+	api.GetConnectionPool(dbURI)
+	api.useInformationSchema = useInformationSchema
+	lib.Logger.Infof("connected to mysql with conn_str: %s", dbURI)
+	api.UpdateAPIMetadata()
+	lib.Logger.Infof("retrived metadata from mysql database: %s", api.databaseMetadata.DatabaseName)
+	api.sql = &SQL{goqu.New("mysql", api.connection), api.databaseMetadata}
+	return
 }
 
 // Connection return
@@ -48,7 +51,11 @@ func (api *MysqlAPI) GetDatabaseMetadata() *DataBaseMetadata {
 //
 // If database tables structure changed, it will be useful
 func (api *MysqlAPI) UpdateAPIMetadata() *MysqlAPI {
-	api.databaseMetadata = api.retriveDatabaseMetadata(api.CurrentDatabaseName())
+	if (api.useInformationSchema) {
+		api.databaseMetadata = api.retriveDatabaseMetadataFromInfoSchema(api.CurrentDatabaseName())
+	} else {
+		api.databaseMetadata = api.retriveDatabaseMetadata(api.CurrentDatabaseName())
+	}
 	return api
 }
 
@@ -79,7 +86,9 @@ func (api *MysqlAPI) Stop() *MysqlAPI {
 // CurrentDatabaseName return current database
 func (api *MysqlAPI) CurrentDatabaseName() string {
 	rows, err := api.connection.Query("select database()")
-	processIfError(err)
+	if err != nil {
+		log.Fatal(err)
+	}
 	var res string
 	for rows.Next() {
 		if err := rows.Scan(&res); err != nil {
@@ -93,37 +102,84 @@ func (api *MysqlAPI) retriveDatabaseMetadata(databaseName string) *DataBaseMetad
 	var tableMetas []*TableMetadata
 	rs := &DataBaseMetadata{DatabaseName: databaseName}
 	rows, err := api.connection.Query("show tables")
-	processIfError(err)
+	if err != nil {
+		log.Fatal(err)
+	}
 	for rows.Next() {
 		var tableName string
 		err := rows.Scan(&tableName)
-		processIfError(err)
+		if err != nil {
+			log.Fatal(err)
+		}
 		tableMetas = append(tableMetas, api.retriveTableMetadata(tableName))
 	}
 	rs.Tables = tableMetas
 	return rs
 }
 
-func processIfError(err error) {
+func (api *MysqlAPI) retriveDatabaseMetadataFromInfoSchema(databaseName string) (rs *DataBaseMetadata) {
+	var tableMetas []*TableMetadata
+	rs = &DataBaseMetadata{DatabaseName: databaseName}
+	rows, err := api.connection.Query(fmt.Sprintf("SELECT `TABLE_NAME`,`TABLE_TYPE`,`TABLE_ROWS`,`AUTO_INCREMENT`,`TABLE_COMMENT` FROM `information_schema`.`tables` WHERE `TABLE_SCHEMA` = '%s'", databaseName))
 	if err != nil {
 		log.Fatal(err)
 	}
+	for rows.Next() {
+		var tableName, tableType, tableComments sql.NullString
+		var tableRows, tableIncre sql.NullInt64
+		err := rows.Scan(&tableName, &tableType, &tableRows, &tableIncre, &tableComments)
+		if err != nil {
+			log.Fatal(err)
+		}
+		tableMeta := &TableMetadata{}
+		tableMeta.TableName = tableName.String
+		tableMeta.Columns = api.retriveTableColumnsMetadataFromInfoSchema(databaseName, tableName.String)
+		tableMeta.Comment = tableComments.String
+		tableMeta.TableType = tableType.String
+		tableMeta.CurrentIncre = tableIncre.Int64
+		tableMeta.TableRows = tableRows.Int64
+		tableMetas = append(tableMetas, tableMeta)
+	}
+	rs.Tables = tableMetas
+	return rs
 }
 
 func (api *MysqlAPI) retriveTableMetadata(tableName string) *TableMetadata {
 	rs := &TableMetadata{TableName: tableName}
 	var columnMetas []*ColumnMetadata
 	rows, err := api.connection.Query(fmt.Sprintf("desc %s", tableName))
-	processIfError(err)
+	if err != nil {
+		log.Fatal(err)
+	}
 	for rows.Next() {
 		var columnName, columnType, nullAble, key, defaultValue, extra sql.NullString
 		err := rows.Scan(&columnName, &columnType, &nullAble, &key, &defaultValue, &extra)
-		processIfError(err)
-		columnMeta := &ColumnMetadata{columnName.String, columnType.String, nullAble.String, key.String, defaultValue.String, extra.String}
+		if err != nil {
+			log.Fatal(err)
+		}
+		columnMeta := &ColumnMetadata{ColumnName: columnName.String, ColumnType: columnType.String, NullAble: nullAble.String, Key: key.String, DefaultValue: defaultValue.String, Extra: extra.String}
 		columnMetas = append(columnMetas, columnMeta)
 	}
 	rs.Columns = columnMetas
 	return rs
+}
+
+func (api *MysqlAPI) retriveTableColumnsMetadataFromInfoSchema(databaseName, tableName string) (columnMetas []*ColumnMetadata) {
+	rows, err := api.connection.Query(fmt.Sprintf("SELECT * FROM `Information_schema`.`COLUMNS` WHERE `TABLE_SCHEMA` = '%s' AND `TABLE_NAME` = '%s'", databaseName, tableName))
+	if err != nil {
+		log.Fatal(err)
+	}
+	for rows.Next() {
+		var TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, COLUMN_DEFAULT, IS_NULLABLE, DATA_TYPE, CHARACTER_SET_NAME, COLLATION_NAME, COLUMN_TYPE, COLUMN_KEY, EXTRA, PRIVILEGES, COLUMN_COMMENT, IS_GENERATED, GENERATION_EXPRESSION sql.NullString
+		var ORDINAL_POSITION, CHARACTER_MAXIMUM_LENGTH, CHARACTER_OCTET_LENGTH, NUMERIC_PRECISION, NUMERIC_SCALE, DATETIME_PRECISION sql.NullInt64;
+		err := rows.Scan(&TABLE_CATALOG, &TABLE_SCHEMA, &TABLE_NAME, &COLUMN_NAME, &ORDINAL_POSITION, &COLUMN_DEFAULT, &IS_NULLABLE, &DATA_TYPE, &CHARACTER_MAXIMUM_LENGTH, &CHARACTER_OCTET_LENGTH, &NUMERIC_PRECISION, &NUMERIC_SCALE, &DATETIME_PRECISION, &CHARACTER_SET_NAME, &COLLATION_NAME, &COLUMN_TYPE, &COLUMN_KEY, &EXTRA, &PRIVILEGES, &COLUMN_COMMENT, &IS_GENERATED, &GENERATION_EXPRESSION)
+		if err != nil {
+			log.Fatal(err)
+		}
+		columnMeta := &ColumnMetadata{COLUMN_NAME.String, COLUMN_TYPE.String, IS_NULLABLE.String, COLUMN_KEY.String, COLUMN_DEFAULT.String, EXTRA.String, ORDINAL_POSITION.Int64, DATA_TYPE.String, COLUMN_COMMENT.String}
+		columnMetas = append(columnMetas, columnMeta)
+	}
+	return
 }
 
 // Query by sql

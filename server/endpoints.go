@@ -18,12 +18,12 @@ func (m *MysqlAPIServer) endpointEcho(c echo.Context) (err error) {
 	if err != nil {
 		return err
 	}
-	return goJSONMessage(c, "echo api", bodyM)
+	return JSONMessage(c, "echo api", bodyM)
 }
 
 func (m *MysqlAPIServer) endpointUpdateMetadata(c echo.Context) error {
 	m.api.UpdateAPIMetadata()
-	return goJSONMessage(c, "metadata refreshed", nil)
+	return JSONMessage(c, "metadata refreshed", nil)
 }
 
 func (m *MysqlAPIServer) endpointTableGet(c echo.Context) (err error) {
@@ -33,7 +33,7 @@ func (m *MysqlAPIServer) endpointTableGet(c echo.Context) (err error) {
 	if err != nil {
 		return err
 	}
-	return goJSONMessage(c, "get table", rs)
+	return JSONMessage(c, "get table", rs)
 }
 
 func (m *MysqlAPIServer) endpointTableGetSpecific(c echo.Context) (err error) {
@@ -44,7 +44,7 @@ func (m *MysqlAPIServer) endpointTableGetSpecific(c echo.Context) (err error) {
 	if err != nil {
 		return err
 	}
-	return goJSONMessage(c, "get table by id", rs)
+	return JSONMessage(c, "get table by id", rs)
 }
 
 func (m *MysqlAPIServer) endpointTableCreate(c echo.Context) (err error) {
@@ -61,7 +61,7 @@ func (m *MysqlAPIServer) endpointTableCreate(c echo.Context) (err error) {
 	if err != nil {
 		return err
 	}
-	return goJSONMessage(c, "create record", msg)
+	return JSONMessage(c, "create record", msg)
 }
 
 func (m *MysqlAPIServer) endpointTableUpdateSpecific(c echo.Context) (err error) {
@@ -79,7 +79,7 @@ func (m *MysqlAPIServer) endpointTableUpdateSpecific(c echo.Context) (err error)
 	if err != nil {
 		return err
 	}
-	return goJSONMessage(c, "update record", msg)
+	return JSONMessage(c, "update record", msg)
 }
 
 func (m *MysqlAPIServer) endpointTableDelete(c echo.Context) (err error) {
@@ -96,7 +96,7 @@ func (m *MysqlAPIServer) endpointTableDelete(c echo.Context) (err error) {
 	if err != nil {
 		return err
 	}
-	return goJSONMessage(c, "delete record", msg)
+	return JSONMessage(c, "delete record", msg)
 }
 
 func (m *MysqlAPIServer) endpointTableDeleteSpecific(c echo.Context) (err error) {
@@ -110,5 +110,29 @@ func (m *MysqlAPIServer) endpointTableDeleteSpecific(c echo.Context) (err error)
 	if err != nil {
 		return err
 	}
-	return goJSONMessage(c, "delete record by id", msg)
+	return JSONMessage(c, "delete record by id", msg)
+}
+
+func (m *MysqlAPIServer) endpointBatchCreate(c echo.Context) (err error) {
+	payload, err := bodySliceOf(c)
+	msg := make([]map[string]interface{}, 0)
+	tableName := c.Param("table")
+	if err != nil {
+		return
+	}
+	for _, record := range payload {
+		rs, err := m.api.Create(tableName, record.(map[string]interface{}))
+		var r_msg map[string]interface{}
+		if err != nil {
+			r_msg = map[string]interface{}{"error": err}
+		} else {
+			r_msg, _ = parseSQLResult(rs)
+		}
+		msg = append(msg, r_msg)
+	}
+	return JSONMessage(c, "batch create record", msg)
+}
+
+func (m *MysqlAPIServer) endpointServerEndpoints(c echo.Context) (err error) {
+	return JSONMessage(c, "server endpoints", m.e.Routes())
 }
