@@ -11,7 +11,7 @@ import (
 var connectionStr = os.Getenv("API_CONN_STR")
 
 func TestCreateMysqlAPIInstance(t *testing.T) {
-	api := NewMysqlAPI(connectionStr)
+	api := NewMysqlAPI(connectionStr, true)
 	rows, err := api.connection.Query("select 1")
 	if err != nil {
 		log.Fatal(err)
@@ -27,21 +27,21 @@ func TestCreateMysqlAPIInstance(t *testing.T) {
 }
 
 func TestCurrentDatabaseName(t *testing.T) {
-	api := NewMysqlAPI(connectionStr)
+	api := NewMysqlAPI(connectionStr, true)
 	res := api.CurrentDatabaseName()
 	println(res)
 	api.Stop()
 }
 
 func TestRetriveMetadata(t *testing.T) {
-	api := NewMysqlAPI(connectionStr)
+	api := NewMysqlAPI(connectionStr, true)
 	res := api.retriveDatabaseMetadata("monitor")
 	println(res.Tables[0].Columns[0].ColumnName)
 	api.Stop()
 }
 
 func TestRowScan(t *testing.T) {
-	api := NewMysqlAPI(connectionStr)
+	api := NewMysqlAPI(connectionStr, true)
 	defer api.Stop()
 	rs, err := api.query("select * from monitor limit ?", 2)
 	if err != nil {
