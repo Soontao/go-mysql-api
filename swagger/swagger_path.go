@@ -19,30 +19,64 @@ func AppendPathsFor(meta *mysql.TableMetadata, paths map[string]spec.PathItem) (
 	isView := meta.TableType == "VIEW"
 	apiNoIDPath := fmt.Sprintf("/api/%s", tName)
 	apiIDPath := fmt.Sprintf("/api/%s/{id}", tName)
+	apiBatchPath := fmt.Sprintf("/api/batch/%s", tName)
 
-	withoutPathItem := spec.PathItem{}
+	withoutIDPathItem := spec.PathItem{}
 	withIDPathItem := spec.PathItem{}
+	withoutIDBatchPathItem := spec.PathItem{}
 	// /api/:table group
-	withoutPathItem.Get = NewOperation(tName, fmt.Sprintf("get some %s records", tName), []spec.Parameter{}, NewDefinitionMessageWrap(tName, NewRefSchema(tName, "array")).SchemaProps)
+	withoutIDPathItem.Get = NewOperation(
+		tName,
+		fmt.Sprintf("get some %s records", tName),
+		NewQueryParametersForMySQLAPI(),
+		NewDefinitionMessageWrap(tName, NewRefSchema(tName, "array")).SchemaProps,
+	)
 
 	if !isView {
 		// /api/:table group
-		withoutPathItem.Put = NewOperation(tName, fmt.Sprintf("create a %s record", tName), []spec.Parameter{NewParamForDefinition(tName)}, NewDefinitionMessageWrap(tName, NewCUDOperationReturnMessage()).SchemaProps)
-		withoutPathItem.Delete = NewOperation(tName, fmt.Sprintf("delete some %s records", tName), []spec.Parameter{}, NewDefinitionMessageWrap(tName, NewCUDOperationReturnMessage()).SchemaProps)
+		withoutIDPathItem.Put = NewOperation(
+			tName,
+			fmt.Sprintf("create a %s record", tName),
+			[]spec.Parameter{NewParamForDefinition(tName)},
+			NewDefinitionMessageWrap(tName, NewCUDOperationReturnMessage()).SchemaProps,
+		)
+		withoutIDPathItem.Delete = NewOperation(
+			tName,
+			fmt.Sprintf("delete some %s records", tName),
+			[]spec.Parameter{NewParamForDefinition(tName)},
+			NewDefinitionMessageWrap(tName, NewCUDOperationReturnMessage()).SchemaProps,
+		)
 		// /api/:table/:id group
 		withIDPathItem.Get = NewOperation(
 			tName,
 			fmt.Sprintf("get specific %s record", tName),
-			[]spec.Parameter{
-				NewPathIDParameter(meta),
-			},
+			append(NewQueryParametersForMySQLAPI(), NewPathIDParameter(meta)),
 			NewDefinitionMessageWrap(tName, NewRefSchema(tName, "array")).SchemaProps,
+		)
+		withIDPathItem.Post = NewOperation(
+			tName,
+			fmt.Sprintf("update specific %s record", tName),
+			append([]spec.Parameter{NewParamForDefinition(tName)}, NewPathIDParameter(meta)),
+			NewDefinitionMessageWrap(tName, NewCUDOperationReturnMessage()).SchemaProps,
+		)
+		withIDPathItem.Delete = NewOperation(
+			tName,
+			fmt.Sprintf("delete specific %s record", tName),
+			append([]spec.Parameter{}, NewPathIDParameter(meta)),
+			NewDefinitionMessageWrap(tName, NewCUDOperationReturnMessage()).SchemaProps,
+		)
+		withoutIDBatchPathItem.Put = NewOperation(
+			tName,
+			fmt.Sprintf("Batch create %s records", tName),
+			[]spec.Parameter{NewParamForArrayDefinition(tName)},
+			NewDefinitionMessageWrap(tName, NewCUDOperationReturnArrayMessage()).SchemaProps,
 		)
 	}
 
-	paths[apiNoIDPath] = withoutPathItem
+	paths[apiNoIDPath] = withoutIDPathItem
 	if !isView {
 		paths[apiIDPath] = withIDPathItem
+		paths[apiBatchPath] = withoutIDBatchPathItem
 	}
 	return
 }

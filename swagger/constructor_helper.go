@@ -57,6 +57,26 @@ func NewCUDOperationReturnMessage() (s spec.Schema) {
 	return
 }
 
+func NewCUDOperationReturnArrayMessage() (s spec.Schema) {
+	s = spec.Schema{
+		SchemaProps: spec.SchemaProps{
+			Type: spec.StringOrArray{"array"},
+			Items: &spec.SchemaOrArray{
+				Schema: &spec.Schema{
+					SchemaProps: spec.SchemaProps{
+						Properties: map[string]spec.Schema{
+							"lastInsertID":  NewField("lastInsertID", "integer", 0),
+							"rowesAffected": NewField("rowesAffected", "integer", 1),
+						},
+					},
+				},
+			},
+
+		},
+	}
+	return
+}
+
 func NewDefinitionMessageWrap(definitionName string, data spec.Schema) (sWrap *spec.Schema) {
 
 	sWrap = &spec.Schema{
@@ -100,6 +120,32 @@ func GetParametersFromDbMetadata(meta *mysql.DataBaseMetadata) (params map[strin
 	return
 }
 
+func NewQueryParametersForMySQLAPI() (ps []spec.Parameter) {
+	ps = []spec.Parameter{
+		NewQueryParameter("_field", "include the field", "string", false),
+		NewQueryParameter("_limit", "limit max records num", "integer", false),
+		NewQueryParameter("_skip", "skip first some records", "integer", false),
+		NewQueryParameter("_where", "filter with field value", "string", false),
+		NewQueryParameter("_link", "auto join a table", "string", false),
+	}
+	return
+}
+
+func NewQueryParameter(paramName, paramDescription, paramType string, required bool) (p spec.Parameter) {
+	p = spec.Parameter{
+		SimpleSchema: spec.SimpleSchema{
+			Type: paramType,
+		},
+		ParamProps: spec.ParamProps{
+			In:          "query",
+			Name:        paramName,
+			Required:    required,
+			Description: paramDescription,
+		},
+	}
+	return
+}
+
 func NewPathIDParameter(tMeta *mysql.TableMetadata) (p spec.Parameter) {
 	p = spec.Parameter{
 		SimpleSchema: spec.SimpleSchema{
@@ -110,6 +156,18 @@ func NewPathIDParameter(tMeta *mysql.TableMetadata) (p spec.Parameter) {
 			Name:        "id",
 			Required:    true,
 			Description: fmt.Sprintf("%s %s", tMeta.TableName, tMeta.GetPrimaryColumn().ColumnName),
+		},
+	}
+	return
+}
+
+func NewParamForArrayDefinition(tName string) (p spec.Parameter) {
+	s := NewRefSchema(tName, "array")
+	p = spec.Parameter{
+		ParamProps: spec.ParamProps{
+			In:     "body",
+			Name:   tName,
+			Schema: &s,
 		},
 	}
 	return
