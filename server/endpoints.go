@@ -4,7 +4,20 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo"
+	"github.com/Soontao/go-mysql-api/swagger"
+	"github.com/Soontao/go-mysql-api/static"
 )
+
+func (m *MysqlAPIServer) endpointSwaggerHTML(c echo.Context) error {
+	return c.HTML(http.StatusOK, static.SWAGGER_HTML)
+}
+
+func (m *MysqlAPIServer) endpointSwaggerJSON(c echo.Context) error {
+	s := swagger.GenSwaggerFromDBMetadata(m.api.GetDatabaseMetadata())
+	s.Host = c.Request().Host
+	s.Schemes = []string{c.Scheme()}
+	return c.JSON(http.StatusOK, s)
+}
 
 func (m *MysqlAPIServer) endpointMetadata(c echo.Context) error {
 	if c.QueryParam("simple") == "true" {

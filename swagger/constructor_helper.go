@@ -2,8 +2,8 @@ package swagger
 
 import (
 	"github.com/go-openapi/spec"
-	"fmt"
 	"github.com/Soontao/go-mysql-api/mysql"
+	"fmt"
 )
 
 func NewRefSchema(refDefinationName, reftype string) (s spec.Schema) {
@@ -29,28 +29,44 @@ func NewRefSchema(refDefinationName, reftype string) (s spec.Schema) {
 	return
 }
 
-func NewField(sName, sType string) (s spec.Schema) {
+func NewField(sName, sType string, iExample interface{}) (s spec.Schema) {
 	s = spec.Schema{
 		spec.VendorExtensible{},
 		spec.SchemaProps{
 			Type:  spec.StringOrArray{sType},
 			Title: sName,
 		},
-		spec.SwaggerSchemaProps{},
+		spec.SwaggerSchemaProps{
+			Example: iExample,
+		},
 		nil,
 	}
 	return
 }
 
-func NewDefinitionMessageWrap(definitionName string) (sWrap *spec.Schema) {
+func NewCUDOperationReturnMessage() (s spec.Schema) {
+	s = spec.Schema{
+		SchemaProps: spec.SchemaProps{
+			Type: spec.StringOrArray{"object"},
+			Properties: map[string]spec.Schema{
+				"lastInsertID":  NewField("lastInsertID", "integer", 0),
+				"rowesAffected": NewField("rowesAffected", "integer", 1),
+			},
+		},
+	}
+	return
+}
+
+func NewDefinitionMessageWrap(definitionName string, data spec.Schema) (sWrap *spec.Schema) {
+
 	sWrap = &spec.Schema{
 		spec.VendorExtensible{},
 		spec.SchemaProps{
 			Type: spec.StringOrArray{"object"},
 			Properties: map[string]spec.Schema{
-				"status":  NewField("status", "integer"),
-				"message": NewField("message", "string"),
-				"data":    NewRefSchema(definitionName, "array"),
+				"status":  NewField("status", "integer", 200),
+				"message": NewField("message", "string", nil),
+				"data":    data,
 			},
 		},
 		spec.SwaggerSchemaProps{},
@@ -67,16 +83,6 @@ func NewSwaggerInfo(title, version string) (info *spec.Info) {
 	return
 }
 
-func NewAPIPathItemForTable(tName string) (pathItem spec.PathItem) {
-	pathItem = spec.PathItem{
-		spec.Refable{}, spec.VendorExtensible{}, spec.PathItemProps{
-			Get:  NewOperation(tName, fmt.Sprintf("get some %s records", tName), []spec.Parameter{}, NewDefinitionMessageWrap(tName).SchemaProps),
-			Post: NewOperation(tName, fmt.Sprintf("create a %s record", tName), []spec.Parameter{NewParamForDefinition(tName)}, NewDefinitionMessageWrap(tName).SchemaProps),
-		},
-	}
-	return
-}
-
 func GetParametersFromDbMetadata(meta *mysql.DataBaseMetadata) (params map[string]spec.Parameter) {
 	params = make(map[string]spec.Parameter)
 	for _, t := range meta.Tables {
@@ -90,6 +96,21 @@ func GetParametersFromDbMetadata(meta *mysql.DataBaseMetadata) (params map[strin
 				},
 			}
 		}
+	}
+	return
+}
+
+func NewPathIDParameter(tMeta *mysql.TableMetadata) (p spec.Parameter) {
+	p = spec.Parameter{
+		SimpleSchema: spec.SimpleSchema{
+			Type: "string",
+		},
+		ParamProps: spec.ParamProps{
+			In:          "path",
+			Name:        "id",
+			Required:    true,
+			Description: fmt.Sprintf("%s %s", tMeta.TableName, tMeta.GetPrimaryColumn().ColumnName),
+		},
 	}
 	return
 }

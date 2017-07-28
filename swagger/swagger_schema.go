@@ -19,7 +19,16 @@ func dbTypeToSchemaType(t string) (rt_t string) {
 	return
 }
 
-func SwaggerSchemaPropsFromTableMetadata(tMeta *mysql.TableMetadata) (schemaProp spec.SchemaProps) {
+func ColumnSchema(col *mysql.ColumnMetadata) (s *spec.Schema) {
+	s = &spec.Schema{
+		SchemaProps: spec.SchemaProps{
+			Type:        spec.StringOrArray{dbTypeToSchemaType(col.DataType)},
+		},
+	}
+	return
+}
+
+func SchemaPropsFromTbmeta(tMeta *mysql.TableMetadata) (schemaProp spec.SchemaProps) {
 	schemaProp = spec.SchemaProps{}
 	schemaProp.Required = []string{}
 	schemaProp.Properties = map[string]spec.Schema{}

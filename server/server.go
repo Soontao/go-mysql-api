@@ -5,12 +5,14 @@ import (
 	"github.com/Soontao/go-mysql-api/mysql"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
+	"github.com/go-openapi/spec"
 )
 
 // MysqlAPIServer is a http server could access mysql api
 type MysqlAPIServer struct {
-	e   *echo.Echo
-	api *mysql.MysqlAPI
+	e       *echo.Echo
+	api     *mysql.MysqlAPI
+	swagger *spec.Swagger
 }
 
 // NewMysqlAPIServer create a new MysqlAPIServer instance
@@ -33,6 +35,8 @@ func (server *MysqlAPIServer) Start(address string) *MysqlAPIServer {
 	server.e.POST("/api/echo", server.endpointEcho).Name = "Echo API"
 	server.e.GET("/api/endpoints", server.endpointServerEndpoints).Name = "Server Endpoints"
 	server.e.GET("/api/updatemetadata", server.endpointUpdateMetadata).Name = "Update DB Metadata"
+	server.e.GET("/api/swagger-ui.html", server.endpointSwaggerHTML).Name = "Swagger UI Page"
+	server.e.GET("/api/swagger.json", server.endpointSwaggerJSON).Name = "Swagger Infomation"
 
 	server.e.GET("/api/:table", server.endpointTableGet).Name = "Retrive Some Records"
 	server.e.PUT("/api/:table", server.endpointTableCreate).Name = "Create Single Record"
