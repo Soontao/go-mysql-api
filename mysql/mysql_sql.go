@@ -79,13 +79,17 @@ func (s *SQL) configBuilder(builder *goqu.Dataset, priT string, opt QueryOption)
 		rs = rs.Offset(uint(opt.offset))
 	}
 	if opt.fields != nil {
-		rs = rs.Select(opt.fields...)
+		fs := make([]interface{}, len(opt.fields))
+		for idx, f := range opt.fields {
+			fs[idx] = f
+		}
+		rs = rs.Select(fs...)
 	}
 	for f, w := range opt.wheres {
 		rs = rs.Where(goqu.Ex{f: w})
 	}
 	for _, l := range opt.links {
-		refT := l.(string)
+		refT := l
 		refK := s.getPriKeyNameOf(refT)
 		priK := s.getPriKeyNameOf(priT)
 		if s.dbMeta.TableHaveField(priT, refK) {

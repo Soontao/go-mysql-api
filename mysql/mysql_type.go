@@ -1,8 +1,9 @@
 package mysql
 
 import (
-	"gopkg.in/doug-martin/goqu.v4"
 	"fmt"
+
+	"gopkg.in/doug-martin/goqu.v4"
 )
 
 // DataBaseMetadata metadata of a database
@@ -48,8 +49,8 @@ type ColumnMetadata struct {
 type QueryOption struct {
 	limit  int
 	offset int
-	fields []interface{}
-	links  []interface{}
+	fields []string
+	links  []string
 	wheres map[string]goqu.Op
 }
 

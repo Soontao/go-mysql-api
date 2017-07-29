@@ -13,6 +13,7 @@ func SwaggerDefinationsFromDabaseMetadata(dbMeta *mysql.DataBaseMetadata) (defin
 		schema := spec.Schema{}
 		schema.Type = spec.StringOrArray{"object"}
 		schema.Title = t.TableName
+		schema.Description = t.Comment
 		schema.SchemaProps = SchemaPropsFromTbmeta(t)
 		definations[t.TableName] = schema
 	}

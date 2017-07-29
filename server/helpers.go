@@ -70,18 +70,23 @@ func customErrorHandler(err error, c echo.Context) {
 	}
 }
 
-func parseQueryParams(c echo.Context) (limit int, offset int, fields []interface{}, wheres map[string]goqu.Op, links []interface{}) {
+func parseQueryParams(c echo.Context) (limit int, offset int, fields []string, wheres map[string]goqu.Op, links []string) {
 	queryParam := c.QueryParams()
 	limit, _ = strconv.Atoi(c.QueryParam("_limit"))
 	offset, _ = strconv.Atoi(c.QueryParam("_skip"))
+	fields = make([]string, 0)
+	if queryParam["_fields"] != nil {
+		for _, sArrFields := range queryParam["_fields"] {
+			fields = append(fields, strings.Split(sArrFields, ",")...)
+		}
+	}
 	if queryParam["_field"] != nil {
-		fields = make([]interface{}, len(queryParam["_field"]))
-		for idx, f := range queryParam["_field"] {
-			fields[idx] = f
+		for _, f := range queryParam["_field"] {
+			fields = append(fields, f)
 		}
 	}
 	if queryParam["_link"] != nil {
-		links = make([]interface{}, len(queryParam["_link"]))
+		links = make([]string, len(queryParam["_link"]))
 		for idx, f := range queryParam["_link"] {
 			links[idx] = f
 		}

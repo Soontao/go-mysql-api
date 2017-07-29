@@ -3,9 +3,9 @@ package server
 import (
 	"github.com/Soontao/go-mysql-api/lib"
 	"github.com/Soontao/go-mysql-api/mysql"
+	"github.com/go-openapi/spec"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
-	"github.com/go-openapi/spec"
 )
 
 // MysqlAPIServer is a http server could access mysql api
@@ -46,7 +46,7 @@ func (server *MysqlAPIServer) Start(address string) *MysqlAPIServer {
 	server.e.DELETE("/api/:table/:id", server.endpointTableDeleteSpecific).Name = "Delete Record By ID"
 	server.e.POST("/api/:table/:id", server.endpointTableUpdateSpecific).Name = "Update Record By ID"
 
-	server.e.PUT("/api/batch/:table", server.endpointBatchCreate).Name = "Batch Create Record"
+	server.e.PUT("/api/batch/:table", server.endpointBatchCreate).Name = "Batch Create Records"
 
 	server.e.Logger.Infof("server start at %s", address)
 	server.e.Logger.Fatal(server.e.Start(address))

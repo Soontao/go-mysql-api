@@ -51,7 +51,7 @@ func (api *MysqlAPI) GetDatabaseMetadata() *DataBaseMetadata {
 //
 // If database tables structure changed, it will be useful
 func (api *MysqlAPI) UpdateAPIMetadata() *MysqlAPI {
-	if (api.useInformationSchema) {
+	if api.useInformationSchema {
 		api.databaseMetadata = api.retriveDatabaseMetadataFromInfoSchema(api.CurrentDatabaseName())
 	} else {
 		api.databaseMetadata = api.retriveDatabaseMetadata(api.CurrentDatabaseName())
@@ -171,7 +171,7 @@ func (api *MysqlAPI) retriveTableColumnsMetadataFromInfoSchema(databaseName, tab
 	}
 	for rows.Next() {
 		var TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, COLUMN_DEFAULT, IS_NULLABLE, DATA_TYPE, CHARACTER_SET_NAME, COLLATION_NAME, COLUMN_TYPE, COLUMN_KEY, EXTRA, PRIVILEGES, COLUMN_COMMENT, IS_GENERATED, GENERATION_EXPRESSION sql.NullString
-		var ORDINAL_POSITION, CHARACTER_MAXIMUM_LENGTH, CHARACTER_OCTET_LENGTH, NUMERIC_PRECISION, NUMERIC_SCALE, DATETIME_PRECISION sql.NullInt64;
+		var ORDINAL_POSITION, CHARACTER_MAXIMUM_LENGTH, CHARACTER_OCTET_LENGTH, NUMERIC_PRECISION, NUMERIC_SCALE, DATETIME_PRECISION sql.NullInt64
 		err := rows.Scan(&TABLE_CATALOG, &TABLE_SCHEMA, &TABLE_NAME, &COLUMN_NAME, &ORDINAL_POSITION, &COLUMN_DEFAULT, &IS_NULLABLE, &DATA_TYPE, &CHARACTER_MAXIMUM_LENGTH, &CHARACTER_OCTET_LENGTH, &NUMERIC_PRECISION, &NUMERIC_SCALE, &DATETIME_PRECISION, &CHARACTER_SET_NAME, &COLLATION_NAME, &COLUMN_TYPE, &COLUMN_KEY, &EXTRA, &PRIVILEGES, &COLUMN_COMMENT, &IS_GENERATED, &GENERATION_EXPRESSION)
 		if err != nil {
 			log.Fatal(err)
@@ -263,10 +263,10 @@ func (api *MysqlAPI) Delete(table string, id interface{}, obj map[string]interfa
 }
 
 // Select by table name , where or id
-func (api *MysqlAPI) Select(table string, id interface{}, limit int, offset int, fields []interface{}, wheres map[string]goqu.Op, links []interface{}) (rs []map[string]interface{}, err error) {
+func (api *MysqlAPI) Select(table string, id interface{}, limit int, offset int, fields []string, wheres map[string]goqu.Op, links []string) (rs []map[string]interface{}, err error) {
 	var sql string
 	for _, f := range fields {
-		if !api.databaseMetadata.TableHaveField(table, f.(string)) {
+		if !api.databaseMetadata.TableHaveField(table, f) {
 			err = fmt.Errorf("table '%s' not have '%s' field !/n", table, f)
 			return
 		}

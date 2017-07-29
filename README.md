@@ -64,6 +64,8 @@ server.e.GET("/api/metadata", server.endpointMetadata).Name = "Database Metadata
 server.e.POST("/api/echo", server.endpointEcho).Name = "Echo API"
 server.e.GET("/api/endpoints", server.endpointServerEndpoints).Name = "Server Endpoints"
 server.e.GET("/api/updatemetadata", server.endpointUpdateMetadata).Name = "Update DB Metadata"
+server.e.GET("/api/swagger-ui.html", server.endpointSwaggerHTML).Name = "Swagger UI Page"
+server.e.GET("/api/swagger.json", server.endpointSwaggerJSON).Name = "Swagger Infomation"
 
 server.e.GET("/api/:table", server.endpointTableGet).Name = "Retrive Some Records"
 server.e.PUT("/api/:table", server.endpointTableCreate).Name = "Create Single Record"
@@ -73,12 +75,18 @@ server.e.GET("/api/:table/:id", server.endpointTableGetSpecific).Name = "Retrive
 server.e.DELETE("/api/:table/:id", server.endpointTableDeleteSpecific).Name = "Delete Record By ID"
 server.e.POST("/api/:table/:id", server.endpointTableUpdateSpecific).Name = "Update Record By ID"
 
-server.e.PUT("/api/batch/:table", server.endpointBatchCreate).Name = "Batch Create Record"
+server.e.PUT("/api/batch/:table", server.endpointBatchCreate).Name = "Batch Create Records"
 ```
 
 pls use `application/json` MIME and json format in client request.
 
-pls use json object(`{object}`) in Create, Update, Delete method (if need payload), and there is no support for batch process now.
+pls use json object(`{object}`) in C/U/D method (if need payload)
+
+## Swagger Support
+
+You can open **/api/swagger-ui.html** to see all crud documents, the interactive documention will be helpful.
+
+And **go-mysql-api** also provides the *swagger.json* with **/api/swagger.json**
 
 ## Get DB Metadata
 
@@ -116,7 +124,7 @@ You could use **GET** `/api/metadata` get database metadata, or with `?simple=tr
 
 ```
 
-## operate record
+## Operate record
 
 * use **PUT `/api/user`** method to create new user record
 
@@ -182,7 +190,7 @@ response
 
 ## Advance query
 
-query apis could use **_limit**, **_skip**, **_field**, **_where**, **_link** query param
+query apis could use **_limit**, **_skip**, **_field**, **_fields**, **_where**, **_link** query param
 
 * filter fields
 
@@ -232,7 +240,9 @@ SELECT * FROM `monitor`
 
 ```
 
-## any tests ?
+**Even if go-mysql-api has already supported simple association, we still recommend using views for complex queries**
+
+## Some tests
 
 yeah, there are some in-package tests, but not work for out-package, and based on env var
 
