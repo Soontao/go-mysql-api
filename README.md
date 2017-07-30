@@ -84,7 +84,7 @@ pls use json object(`{object}`) in C/U/D method (if need payload)
 
 ## Swagger Support
 
-You can open **/api/swagger-ui.html** to see all crud documents, the interactive documention will be helpful.
+You can open **/static/swagger-ui.html** to see all crud documents, the interactive documention will be helpful.
 
 And **go-mysql-api** also provides the *swagger.json* with **/api/swagger.json**
 
