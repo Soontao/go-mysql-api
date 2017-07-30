@@ -1,8 +1,11 @@
 package swagger
 
 import (
-	"github.com/go-openapi/spec"
+	"regexp"
+	"strings"
+
 	"github.com/Soontao/go-mysql-api/mysql"
+	"github.com/go-openapi/spec"
 )
 
 func dbTypeToSchemaType(t string) (rt_t string) {
@@ -19,10 +22,22 @@ func dbTypeToSchemaType(t string) (rt_t string) {
 	return
 }
 
+func getEnumIfItIs(c *mysql.ColumnMetadata) (enum []interface{}) {
+	enum = make([]interface{}, 0)
+	re := regexp.MustCompile("\\'([\\w]+)\\'")
+	if strings.HasPrefix(c.ColumnType, "enum") {
+		enumStrArr := re.FindAllString(c.ColumnType, -1)
+		for _, enumItem := range enumStrArr {
+			enum = append(enum, enumItem)
+		}
+	}
+	return
+}
+
 func ColumnSchema(col *mysql.ColumnMetadata) (s *spec.Schema) {
 	s = &spec.Schema{
 		SchemaProps: spec.SchemaProps{
-			Type:        spec.StringOrArray{dbTypeToSchemaType(col.DataType)},
+			Type: spec.StringOrArray{dbTypeToSchemaType(col.DataType)},
 		},
 	}
 	return
@@ -42,6 +57,7 @@ func SchemaPropsFromTbmeta(tMeta *mysql.TableMetadata) (schemaProp spec.SchemaPr
 				Description: col.Comment,
 				Title:       col.ColumnName,
 				Default:     col.DefaultValue,
+				Enum:        getEnumIfItIs(col),
 			},
 		}
 	}
