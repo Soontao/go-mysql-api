@@ -1,10 +1,7 @@
-FROM golang:1.8
+FROM scratch
 
-WORKDIR /go/src/app
-COPY . .
-RUN go-wrapper download
-RUN go-wrapper install
+COPY go-mysql-api-linux-amd64 /go-mysql-api
 
 EXPOSE 1323
 
-CMD ["go-wrapper", "run"]
+CMD ["/go-mysql-api"]
