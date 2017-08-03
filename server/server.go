@@ -31,12 +31,12 @@ func NewMysqlAPIServer(dbURI string, useInformationSchema bool) *MysqlAPIServer 
 
 // Start server
 func (server *MysqlAPIServer) Start(address string) *MysqlAPIServer {
-	server.e.GET("/static/*", server.getStaticEndPoint()).Name = "STATIC"
 	server.e.GET("/api/metadata", server.endpointMetadata).Name = "Database Metadata"
 	server.e.POST("/api/echo", server.endpointEcho).Name = "Echo API"
 	server.e.GET("/api/endpoints", server.endpointServerEndpoints).Name = "Server Endpoints"
 	server.e.GET("/api/updatemetadata", server.endpointUpdateMetadata).Name = "Update DB Metadata"
 	server.e.GET("/api/swagger.json", server.endpointSwaggerJSON).Name = "Swagger Infomation"
+	server.e.GET("/api/swagger-ui.html", server.endpointSwaggerUI).Name = "Swagger UI"
 
 	server.e.GET("/api/:table", server.endpointTableGet).Name = "Retrive Some Records"
 	server.e.PUT("/api/:table", server.endpointTableCreate).Name = "Create Single Record"

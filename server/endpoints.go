@@ -3,14 +3,14 @@ package server
 import (
 	"net/http"
 
-	"github.com/GeertJohan/go.rice"
 	"github.com/Soontao/go-mysql-api/swagger"
+	"github.com/Soontao/go-mysql-api/static"
+
 	"github.com/labstack/echo"
 )
 
-func (m *MysqlAPIServer) getStaticEndPoint() echo.HandlerFunc {
-	assests := http.FileServer(rice.MustFindBox("../static").HTTPBox())
-	return echo.WrapHandler(http.StripPrefix("/static/", assests))
+func (m *MysqlAPIServer) endpointSwaggerUI(c echo.Context) error {
+	return c.HTML(http.StatusOK, static.SWAGGER_UI_HTML)
 }
 
 func (m *MysqlAPIServer) endpointSwaggerJSON(c echo.Context) error {

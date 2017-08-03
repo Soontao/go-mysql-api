@@ -60,12 +60,12 @@ use correct link, or config with public mysql database
 if you have any web dev experience, apis will easy to understand
 
 ```golang
-server.e.GET("/static/*", server.getStaticEndPoint()).Name = "STATIC"
 server.e.GET("/api/metadata", server.endpointMetadata).Name = "Database Metadata"
 server.e.POST("/api/echo", server.endpointEcho).Name = "Echo API"
 server.e.GET("/api/endpoints", server.endpointServerEndpoints).Name = "Server Endpoints"
 server.e.GET("/api/updatemetadata", server.endpointUpdateMetadata).Name = "Update DB Metadata"
 server.e.GET("/api/swagger.json", server.endpointSwaggerJSON).Name = "Swagger Infomation"
+server.e.GET("/api/swagger-ui.html", server.endpointSwaggerUI).Name = "Swagger UI"
 
 server.e.GET("/api/:table", server.endpointTableGet).Name = "Retrive Some Records"
 server.e.PUT("/api/:table", server.endpointTableCreate).Name = "Create Single Record"
@@ -80,7 +80,7 @@ server.e.PUT("/api/batch/:table", server.endpointBatchCreate).Name = "Batch Crea
 
 ## Swagger Support
 
-You can open **/static/swagger-ui.html** to see all crud documents, the interactive documention will be helpful.
+You can open **/api/swagger-ui.html** to see all crud documents, the interactive documention will be helpful.
 
 And **go-mysql-api** also provides the *swagger.json* with **/api/swagger.json**
 
