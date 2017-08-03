@@ -60,11 +60,11 @@ use correct link, or config with public mysql database
 if you have any web dev experience, apis will easy to understand
 
 ```golang
+server.e.GET("/static/*", server.getStaticEndPoint()).Name = "STATIC"
 server.e.GET("/api/metadata", server.endpointMetadata).Name = "Database Metadata"
 server.e.POST("/api/echo", server.endpointEcho).Name = "Echo API"
 server.e.GET("/api/endpoints", server.endpointServerEndpoints).Name = "Server Endpoints"
 server.e.GET("/api/updatemetadata", server.endpointUpdateMetadata).Name = "Update DB Metadata"
-server.e.GET("/api/swagger-ui.html", server.endpointSwaggerHTML).Name = "Swagger UI Page"
 server.e.GET("/api/swagger.json", server.endpointSwaggerJSON).Name = "Swagger Infomation"
 
 server.e.GET("/api/:table", server.endpointTableGet).Name = "Retrive Some Records"
@@ -78,10 +78,6 @@ server.e.POST("/api/:table/:id", server.endpointTableUpdateSpecific).Name = "Upd
 server.e.PUT("/api/batch/:table", server.endpointBatchCreate).Name = "Batch Create Records"
 ```
 
-pls use `application/json` MIME and json format in client request.
-
-pls use json object(`{object}`) in C/U/D method (if need payload)
-
 ## Swagger Support
 
 You can open **/static/swagger-ui.html** to see all crud documents, the interactive documention will be helpful.
@@ -90,16 +86,11 @@ And **go-mysql-api** also provides the *swagger.json* with **/api/swagger.json**
 
 ## Get DB Metadata
 
-You could use **GET** `/api/metadata` get database metadata, or with `?simple=true` get simple metadata
+You could use **GET** `/api/metadata` get database metadata, or with `?simple=true` param to get simple metadata
 
 ```json
 
 {
-    "[BASE TABLE] (1 rows) sessions": [
-        "session_id varchar(128)  NullAble(NO) ''",
-        "expires int(11) unsigned  NullAble(NO) ''",
-        "data text  NullAble(YES) ''"
-    ],
     "[BASE TABLE] (111802 rows) monitor_log": [
         "lid int(11)  NullAble(NO) 'Log ID'",
         "mid int(11)  NullAble(NO) 'Monitor ID'",
@@ -139,21 +130,6 @@ body
 
 ```
 
-response
-
-```json
-
-{
-    "status": 200,
-    "message": "create record",
-    "data": {
-        "lastInsertID": 31,
-        "rowesAffected": 1
-    }
-}
-
-```
-
 * use **GET `/api/user/31`** to get our created record
 
 ```json
@@ -174,54 +150,15 @@ response
 
 * use **DELETE `/api/user/31`** to delete the record, (body is not needed)
 
-```json
-
-
-{
-    "status": 200,
-    "message": "delete record by id",
-    "data": {
-        "lastInsertID": 0,
-        "rowesAffected": 1
-    }
-}
-
-```
-
 ## Advance query
 
 query apis could use **_limit**, **_skip**, **_field**, **_fields**, **_where**, **_link** query param
-
-* filter fields
-
-you could use `_field` choose which fields you need
-
-```bash
-
-http :1323/api/monitor_log _limit==10 _field==lid _field==mid _field==success _skip==10 -v
-
-# GET /api/monitor_log?_limit=10&_field=lid&_field=mid&_field=success&_skip=10 HTTP/1.1
-
-```
-
-```sql
-
-SELECT `lid`, `mid`, `success`
-  FROM `monitor_log`
-  LIMIT 10
-  OFFSET 10
-
-```
 
 * auto join and powerful query
 
 You could use `in`, `notIn`, `like`, `is`, `neq`, `isNot` and `eq` in `_where` param
 
-```bash
-
-# GET /api/monitor?_link=user&_link=monitor_log&_limit=100&_where='user.uid'.in(11,22)&_where='monitor_log.success'.eq(false)
-
-```
+`GET /api/monitor?_link=user&_link=monitor_log&_limit=100&_where='user.uid'.in(11,22)&_where='monitor_log.success'.eq(false)`
 
 ```sql
 
@@ -240,7 +177,7 @@ SELECT * FROM `monitor`
 
 ```
 
-**Even if go-mysql-api has already supported simple association, we still recommend using views for complex queries**
+**Even if go-mysql-api has already supported simple association query, we still recommend using views for complex queries**
 
 ## Some tests
 

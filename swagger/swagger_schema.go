@@ -6,6 +6,7 @@ import (
 
 	"github.com/Soontao/go-mysql-api/mysql"
 	"github.com/go-openapi/spec"
+	"fmt"
 )
 
 func dbTypeToSchemaType(t string) (rt_t string) {
@@ -43,18 +44,22 @@ func ColumnSchema(col *mysql.ColumnMetadata) (s *spec.Schema) {
 	return
 }
 
-func SchemaPropsFromTbmeta(tMeta *mysql.TableMetadata) (schemaProp spec.SchemaProps) {
-	schemaProp = spec.SchemaProps{}
-	schemaProp.Required = []string{}
-	schemaProp.Properties = map[string]spec.Schema{}
+func SchemaPropsFromTbmeta(tMeta *mysql.TableMetadata) (tableSchema spec.SchemaProps) {
+	tableSchema = spec.SchemaProps{}
+	tableSchema.Required = []string{}
+	tableSchema.Properties = map[string]spec.Schema{}
 	for _, col := range tMeta.Columns {
-		if col.NullAble == "NO" {
-			schemaProp.Required = append(schemaProp.Required, col.ColumnName)
+		if col.NullAble == "NO" && col.Extra != "auto_increment" {
+			tableSchema.Required = append(tableSchema.Required, col.ColumnName)
 		}
-		schemaProp.Properties[col.ColumnName] = spec.Schema{
+		desc := col.Comment
+		if col.Key == "PRI" {
+			desc = fmt.Sprintf("(PK) %s", col.Comment)
+		}
+		tableSchema.Properties[col.ColumnName] = spec.Schema{
 			SchemaProps: spec.SchemaProps{
 				Type:        spec.StringOrArray{dbTypeToSchemaType(col.DataType)},
-				Description: col.Comment,
+				Description: desc,
 				Title:       col.ColumnName,
 				Default:     col.DefaultValue,
 				Enum:        getEnumIfItIs(col),

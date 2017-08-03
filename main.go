@@ -15,9 +15,7 @@ type cliArgs struct {
 func main() {
 	cli.Run(new(cliArgs), func(ctx *cli.Context) error {
 		argv := ctx.Argv().(*cliArgs)
-		server.
-		NewMysqlAPIServer(argv.ConnectionStr, !argv.NoInfomationSchema).
-			Start(argv.ListenAddress)
+		server.NewMysqlAPIServer(argv.ConnectionStr, !argv.NoInfomationSchema).Start(argv.ListenAddress)
 		return nil
 	})
 

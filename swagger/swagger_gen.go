@@ -3,7 +3,6 @@ package swagger
 import (
 	"github.com/go-openapi/spec"
 	"github.com/Soontao/go-mysql-api/mysql"
-	"fmt"
 )
 
 func GenSwaggerFromDBMetadata(dbMetadata *mysql.DataBaseMetadata) (s *spec.Swagger) {
@@ -12,8 +11,8 @@ func GenSwaggerFromDBMetadata(dbMetadata *mysql.DataBaseMetadata) (s *spec.Swagg
 	s.Swagger = "2.0"
 	s.Schemes = []string{"http"}
 	s.Tags = GetTagsFromDBMetadata(dbMetadata)
-	s.Info = NewSwaggerInfo(fmt.Sprintf("Database %s API", dbMetadata.DatabaseName), "version 1")
+	s.Info = NewSwaggerInfo(dbMetadata, "version 1")
 	s.Definitions = SwaggerDefinationsFromDabaseMetadata(dbMetadata)
-	s.Paths = &spec.Paths{Paths:SwaggerPathsFromDatabaseMetadata(dbMetadata)}
+	s.Paths = &spec.Paths{Paths: SwaggerPathsFromDatabaseMetadata(dbMetadata)}
 	return
 }

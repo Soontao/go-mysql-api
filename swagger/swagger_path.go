@@ -65,6 +65,7 @@ func AppendPathsFor(meta *mysql.TableMetadata, paths map[string]spec.PathItem) (
 			append([]spec.Parameter{}, NewPathIDParameter(meta)),
 			NewDefinitionMessageWrap(tName, NewCUDOperationReturnMessage()).SchemaProps,
 		)
+		// Batch group
 		withoutIDBatchPathItem.Put = NewOperation(
 			tName,
 			fmt.Sprintf("Batch create %s records", tName),
