@@ -7,7 +7,7 @@ var SWAGGER_UI_HTML = `
 <head>
     <meta charset="UTF-8">
     <title>Swagger UI</title>
-    <link href="https://cdn.bootcss.com/swagger-ui/3.1.2/swagger-ui.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/swagger-ui/3.0.21/swagger-ui.css" rel="stylesheet">
 </head>
 <style>
     body {
@@ -19,8 +19,8 @@ var SWAGGER_UI_HTML = `
 
 <div id="swagger-ui"></div>
 
-<script src="https://cdn.bootcss.com/swagger-ui/3.1.2/swagger-ui-bundle.js"></script>
-<script src="https://cdn.bootcss.com/swagger-ui/3.1.2/swagger-ui-standalone-preset.js"></script>
+<script src="https://cdn.bootcss.com/swagger-ui/3.0.21/swagger-ui-bundle.js"></script>
+<script src="https://cdn.bootcss.com/swagger-ui/3.0.21/swagger-ui-standalone-preset.js"></script>
 <script>
     window.onload = function () {
 

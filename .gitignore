@@ -20,9 +20,13 @@ vendor
 *.test
 *debug*
 
+.vscode
+
 # ide
 
 .idea
 
 *.iml
 /*.docx
+
+*go-mysql-api*

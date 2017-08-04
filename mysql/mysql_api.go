@@ -165,18 +165,28 @@ func (api *MysqlAPI) retriveTableMetadata(tableName string) *TableMetadata {
 }
 
 func (api *MysqlAPI) retriveTableColumnsMetadataFromInfoSchema(databaseName, tableName string) (columnMetas []*ColumnMetadata) {
-	rows, err := api.connection.Query(fmt.Sprintf("SELECT * FROM `Information_schema`.`COLUMNS` WHERE `TABLE_SCHEMA` = '%s' AND `TABLE_NAME` = '%s'", databaseName, tableName))
+	rows, err := api.connection.Query(fmt.Sprintf("SELECT `COLUMN_NAME`, `COLUMN_TYPE`,`IS_NULLABLE`,`COLUMN_KEY`,`ORDINAL_POSITION`,`EXTRA`, `ORDINAL_POSITION`,`DATA_TYPE`,`COLUMN_COMMENT` FROM `Information_schema`.`COLUMNS` WHERE `TABLE_SCHEMA` = '%s' AND `TABLE_NAME` = '%s'", databaseName, tableName))
 	if err != nil {
 		log.Fatal(err)
 	}
 	for rows.Next() {
-		var TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, COLUMN_DEFAULT, IS_NULLABLE, DATA_TYPE, CHARACTER_SET_NAME, COLLATION_NAME, COLUMN_TYPE, COLUMN_KEY, EXTRA, PRIVILEGES, COLUMN_COMMENT, IS_GENERATED, GENERATION_EXPRESSION sql.NullString
-		var ORDINAL_POSITION, CHARACTER_MAXIMUM_LENGTH, CHARACTER_OCTET_LENGTH, NUMERIC_PRECISION, NUMERIC_SCALE, DATETIME_PRECISION sql.NullInt64
-		err := rows.Scan(&TABLE_CATALOG, &TABLE_SCHEMA, &TABLE_NAME, &COLUMN_NAME, &ORDINAL_POSITION, &COLUMN_DEFAULT, &IS_NULLABLE, &DATA_TYPE, &CHARACTER_MAXIMUM_LENGTH, &CHARACTER_OCTET_LENGTH, &NUMERIC_PRECISION, &NUMERIC_SCALE, &DATETIME_PRECISION, &CHARACTER_SET_NAME, &COLLATION_NAME, &COLUMN_TYPE, &COLUMN_KEY, &EXTRA, &PRIVILEGES, &COLUMN_COMMENT, &IS_GENERATED, &GENERATION_EXPRESSION)
+		var COLUMN_NAME, COLUMN_DEFAULT, IS_NULLABLE, DATA_TYPE, COLUMN_TYPE, COLUMN_KEY, EXTRA, COLUMN_COMMENT sql.NullString
+		var ORDINAL_POSITION sql.NullInt64
+		err := rows.Scan(&COLUMN_NAME, &COLUMN_TYPE, &IS_NULLABLE, &COLUMN_KEY, &COLUMN_DEFAULT, &EXTRA, &ORDINAL_POSITION, &DATA_TYPE, &COLUMN_COMMENT)
 		if err != nil {
 			log.Fatal(err)
 		}
-		columnMeta := &ColumnMetadata{COLUMN_NAME.String, COLUMN_TYPE.String, IS_NULLABLE.String, COLUMN_KEY.String, COLUMN_DEFAULT.String, EXTRA.String, ORDINAL_POSITION.Int64, DATA_TYPE.String, COLUMN_COMMENT.String}
+		columnMeta := &ColumnMetadata{
+			COLUMN_NAME.String,
+			COLUMN_TYPE.String,
+			IS_NULLABLE.String,
+			COLUMN_KEY.String,
+			COLUMN_DEFAULT.String,
+			EXTRA.String,
+			ORDINAL_POSITION.Int64,
+			DATA_TYPE.String,
+			COLUMN_COMMENT.String,
+		}
 		columnMetas = append(columnMetas, columnMeta)
 	}
 	return
