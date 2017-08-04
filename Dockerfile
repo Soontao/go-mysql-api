@@ -1,4 +1,4 @@
-FROM scratch
+FROM ubuntu
 
 COPY go-mysql-api-linux-amd64 /go-mysql-api
 
