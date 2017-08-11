@@ -16,6 +16,8 @@ import (
 	"github.com/labstack/echo"
 	"github.com/mediocregopher/gojson"
 	"strings"
+	"github.com/Soontao/go-mysql-api/mysql"
+	"github.com/Soontao/go-mysql-api/key"
 )
 
 // Message
@@ -68,6 +70,19 @@ func customErrorHandler(err error, c echo.Context) {
 	} else {
 		goJSON(c, http.StatusInternalServerError, &Message{http.StatusInternalServerError, err.Error(), nil})
 	}
+}
+
+func parseQueryParamsNew(c echo.Context) (option mysql.QueryOption) {
+	option = mysql.QueryOption{}
+	queryParam := c.QueryParams()
+	option.Limit, option.Offset, option.Fields, option.Wheres, option.Links = parseQueryParams(c)
+	if queryParam[key.KEY_QUERY_SEARCH] != nil {
+		searchStrArray := queryParam[key.KEY_QUERY_SEARCH]
+		if searchStrArray[0] != "" {
+			option.Search = searchStrArray[0]
+		}
+	}
+	return
 }
 
 func parseQueryParams(c echo.Context) (limit int, offset int, fields []string, wheres map[string]goqu.Op, links []string) {

@@ -165,7 +165,7 @@ func (api *MysqlAPI) retriveTableMetadata(tableName string) *TableMetadata {
 }
 
 func (api *MysqlAPI) retriveTableColumnsMetadataFromInfoSchema(databaseName, tableName string) (columnMetas []*ColumnMetadata) {
-	rows, err := api.connection.Query(fmt.Sprintf("SELECT `COLUMN_NAME`, `COLUMN_TYPE`,`IS_NULLABLE`,`COLUMN_KEY`,`ORDINAL_POSITION`,`EXTRA`, `ORDINAL_POSITION`,`DATA_TYPE`,`COLUMN_COMMENT` FROM `Information_schema`.`COLUMNS` WHERE `TABLE_SCHEMA` = '%s' AND `TABLE_NAME` = '%s'", databaseName, tableName))
+	rows, err := api.connection.Query(fmt.Sprintf("SELECT `COLUMN_NAME`, `COLUMN_TYPE`,`IS_NULLABLE`,`COLUMN_KEY`,`COLUMN_DEFAULT`,`EXTRA`, `ORDINAL_POSITION`,`DATA_TYPE`,`COLUMN_COMMENT` FROM `Information_schema`.`COLUMNS` WHERE `TABLE_SCHEMA` = '%s' AND `TABLE_NAME` = '%s'", databaseName, tableName))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -176,6 +176,7 @@ func (api *MysqlAPI) retriveTableColumnsMetadataFromInfoSchema(databaseName, tab
 		if err != nil {
 			log.Fatal(err)
 		}
+
 		columnMeta := &ColumnMetadata{
 			COLUMN_NAME.String,
 			COLUMN_TYPE.String,
@@ -235,7 +236,7 @@ func (api *MysqlAPI) exec(sql string, args ...interface{}) (sql.Result, error) {
 	return api.connection.Exec(sql, args...)
 }
 
-// Create by table name and obj map
+// Create by Table name and obj map
 func (api *MysqlAPI) Create(table string, obj map[string]interface{}) (rs sql.Result, err error) {
 	sql, err := api.sql.InsertByTable(table, obj)
 	if err != nil {
@@ -244,7 +245,7 @@ func (api *MysqlAPI) Create(table string, obj map[string]interface{}) (rs sql.Re
 	return api.exec(sql)
 }
 
-// Update by table name and obj map
+// Update by Table name and obj map
 func (api *MysqlAPI) Update(table string, id interface{}, obj map[string]interface{}) (rs sql.Result, err error) {
 	if id != nil {
 		sql, err := api.sql.UpdateByTableAndId(table, id, obj)
@@ -258,7 +259,7 @@ func (api *MysqlAPI) Update(table string, id interface{}, obj map[string]interfa
 	}
 }
 
-// Delete by table name and where obj
+// Delete by Table name and where obj
 func (api *MysqlAPI) Delete(table string, id interface{}, obj map[string]interface{}) (rs sql.Result, err error) {
 	var sSQL string
 	if id != nil {
@@ -272,20 +273,19 @@ func (api *MysqlAPI) Delete(table string, id interface{}, obj map[string]interfa
 	return api.exec(sSQL)
 }
 
-// Select by table name , where or id
-func (api *MysqlAPI) Select(table string, id interface{}, limit int, offset int, fields []string, wheres map[string]goqu.Op, links []string) (rs []map[string]interface{}, err error) {
+// Select by Table name , where or id
+func (api *MysqlAPI) Select(option QueryOption) (rs []map[string]interface{}, err error) {
 	var sql string
-	for _, f := range fields {
-		if !api.databaseMetadata.TableHaveField(table, f) {
-			err = fmt.Errorf("table '%s' not have '%s' field !/n", table, f)
+	for _, f := range option.Fields {
+		if !api.databaseMetadata.TableHaveField(option.Table, f) {
+			err = fmt.Errorf("Table '%s' not have '%s' field !/n", option.Table, f)
 			return
 		}
 	}
-	opt := QueryOption{limit: limit, offset: offset, fields: fields, wheres: wheres, links: links}
-	if id != nil {
-		sql, err = api.sql.GetByTableAndID(table, id, opt)
+	if option.Id != "" {
+		sql, err = api.sql.GetByTableAndID(option)
 	} else {
-		sql, err = api.sql.GetByTable(table, opt)
+		sql, err = api.sql.GetByTable(option)
 	}
 	if err != nil {
 		return

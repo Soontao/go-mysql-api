@@ -12,9 +12,9 @@ type DataBaseMetadata struct {
 	Tables       []*TableMetadata // collection of tables
 }
 
-// TableMetadata metadata of a table
+// TableMetadata metadata of a Table
 type TableMetadata struct {
-	TableName    string //table name
+	TableName    string //Table name
 	TableType    string
 	TableRows    int64
 	CurrentIncre int64
@@ -47,11 +47,21 @@ type ColumnMetadata struct {
 
 // QueryConfig for Select method
 type QueryOption struct {
-	limit  int
-	offset int
-	fields []string
-	links  []string
-	wheres map[string]goqu.Op
+	Table  string
+	Id     string
+	Limit  int
+	Offset int
+	Fields []string
+	Links  []string
+	Wheres map[string]goqu.Op
+	Search string
+}
+
+func (c *ColumnMetadata) GetDefaultValue() (v interface{}) {
+	if c.DefaultValue != "" {
+		v = c.DefaultValue
+	}
+	return
 }
 
 // GetTableMeta

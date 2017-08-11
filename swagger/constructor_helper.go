@@ -4,6 +4,7 @@ import (
 	"github.com/go-openapi/spec"
 	"github.com/Soontao/go-mysql-api/mysql"
 	"fmt"
+	"github.com/Soontao/go-mysql-api/key"
 )
 
 func NewRefSchema(refDefinationName, reftype string) (s spec.Schema) {
@@ -122,11 +123,13 @@ func GetParametersFromDbMetadata(meta *mysql.DataBaseMetadata) (params map[strin
 
 func NewQueryParametersForMySQLAPI() (ps []spec.Parameter) {
 	ps = []spec.Parameter{
-		NewQueryParameter("_field", "include the field", "string", false),
-		NewQueryParameter("_limit", "limit max records num", "integer", false),
-		NewQueryParameter("_skip", "skip first some records", "integer", false),
-		NewQueryParameter("_where", "filter with field value", "string", false),
-		NewQueryParameter("_link", "auto join a table", "string", false),
+		NewQueryParameter(key.KEY_QUERY_FIELD, "include a field", "string", false),
+		NewQueryParameter(key.KEY_QUERY_FIELDS, "include some fields", "string", false),
+		NewQueryParameter(key.KEY_QUERY_LIMIT, "limit max records num", "integer", false),
+		NewQueryParameter(key.KEY_QUERY_SKIP, "skip first some records", "integer", false),
+		NewQueryParameter(key.KEY_QUERY_WHERE, "filter with field value", "string", false),
+		NewQueryParameter(key.KEY_QUERY_LINK, "auto join a table", "string", false),
+		NewQueryParameter(key.KEY_QUERY_SEARCH, "search content from whole table", "string", false),
 	}
 	return
 }

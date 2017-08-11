@@ -154,6 +154,24 @@ body
 
 query apis could use **_limit**, **_skip**, **_field**, **_fields**, **_where**, **_link** query param
 
+* easily whole table search, with **low query performance**
+
+`GET /api/user?_search=outlook`
+
+```sql
+SELECT * FROM `user`
+    WHERE
+    (
+        (`create_at` LIKE BINARY '%outlook%')
+            OR
+        (`uid` LIKE BINARY '%outlook%')
+            OR
+        (`uname` LIKE BINARY '%outlook%')
+            OR
+        (`utoken` LIKE BINARY '%outlook%')
+    )
+```
+
 * auto join and powerful query
 
 You could use `in`, `notIn`, `like`, `is`, `neq`, `isNot` and `eq` in `_where` param

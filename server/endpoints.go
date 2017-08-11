@@ -42,8 +42,9 @@ func (m *MysqlAPIServer) endpointUpdateMetadata(c echo.Context) error {
 
 func (m *MysqlAPIServer) endpointTableGet(c echo.Context) (err error) {
 	tableName := c.Param("table")
-	limit, offset, fields, wheres, links := parseQueryParams(c)
-	rs, err := m.api.Select(tableName, nil, limit, offset, fields, wheres, links)
+	option := parseQueryParamsNew(c)
+	option.Table = tableName
+	rs, err := m.api.Select(option)
 	if err != nil {
 		return err
 	}
@@ -53,8 +54,10 @@ func (m *MysqlAPIServer) endpointTableGet(c echo.Context) (err error) {
 func (m *MysqlAPIServer) endpointTableGetSpecific(c echo.Context) (err error) {
 	tableName := c.Param("table")
 	id := c.Param("id")
-	limit, offset, fields, wheres, links := parseQueryParams(c)
-	rs, err := m.api.Select(tableName, id, limit, offset, fields, wheres, links)
+	option := parseQueryParamsNew(c)
+	option.Table = tableName
+	option.Id = id
+	rs, err := m.api.Select(option)
 	if err != nil {
 		return err
 	}

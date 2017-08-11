@@ -19,18 +19,18 @@ func (s *SQL) getPriKeyNameOf(tableName string) string {
 }
 
 // GetByTable with filter
-func (s *SQL) GetByTable(tableName string, opt QueryOption) (sql string, err error) {
-	builder := s.sqlBuilder.From(tableName)
-	builder = s.configBuilder(builder, tableName, opt)
+func (s *SQL) GetByTable(opt QueryOption) (sql string, err error) {
+	builder := s.sqlBuilder.From(opt.Table)
+	builder = s.configBuilder(builder, opt.Table, opt)
 	sql, _, err = builder.ToSql()
 	return
 }
 
-// GetByTableAndID for specific record in table
-func (s *SQL) GetByTableAndID(tableName string, id interface{}, opt QueryOption) (sql string, err error) {
-	priKeyName := s.getPriKeyNameOf(tableName)
-	builder := s.sqlBuilder.From(tableName).Where(goqu.Ex{priKeyName: id})
-	builder = s.configBuilder(builder, tableName, opt)
+// GetByTableAndID for specific record in Table
+func (s *SQL) GetByTableAndID(opt QueryOption) (sql string, err error) {
+	priKeyName := s.getPriKeyNameOf(opt.Table)
+	builder := s.sqlBuilder.From(opt.Table).Where(goqu.Ex{priKeyName: opt.Id})
+	builder = s.configBuilder(builder, opt.Table, opt)
 	sql, _, err = builder.ToSql()
 	return sql, err
 }
@@ -63,7 +63,7 @@ func (s *SQL) DeleteByTable(tableName string, mWhere map[string]interface{}) (sq
 func (s *SQL) DeleteByTableAndId(tableName string, id interface{}) (sql string, err error) {
 	priKeyName := s.getPriKeyNameOf(tableName)
 	if priKeyName == "" {
-		err = fmt.Errorf("table `%s` dont have primary key !/n", tableName)
+		err = fmt.Errorf("Table `%s` dont have primary key !/n", tableName)
 		return
 	} else {
 		return s.DeleteByTable(tableName, map[string]interface{}{priKeyName: id})
@@ -72,23 +72,23 @@ func (s *SQL) DeleteByTableAndId(tableName string, id interface{}) (sql string, 
 
 func (s *SQL) configBuilder(builder *goqu.Dataset, priT string, opt QueryOption) (rs *goqu.Dataset) {
 	rs = builder
-	if opt.limit != 0 {
-		rs = rs.Limit(uint(opt.limit))
+	if opt.Limit != 0 {
+		rs = rs.Limit(uint(opt.Limit))
 	}
-	if opt.offset != 0 {
-		rs = rs.Offset(uint(opt.offset))
+	if opt.Offset != 0 {
+		rs = rs.Offset(uint(opt.Offset))
 	}
-	if opt.fields != nil {
-		fs := make([]interface{}, len(opt.fields))
-		for idx, f := range opt.fields {
+	if opt.Fields != nil {
+		fs := make([]interface{}, len(opt.Fields))
+		for idx, f := range opt.Fields {
 			fs[idx] = f
 		}
 		rs = rs.Select(fs...)
 	}
-	for f, w := range opt.wheres {
+	for f, w := range opt.Wheres {
 		rs = rs.Where(goqu.Ex{f: w})
 	}
-	for _, l := range opt.links {
+	for _, l := range opt.Links {
 		refT := l
 		refK := s.getPriKeyNameOf(refT)
 		priK := s.getPriKeyNameOf(priT)
@@ -98,6 +98,13 @@ func (s *SQL) configBuilder(builder *goqu.Dataset, priT string, opt QueryOption)
 		if s.dbMeta.TableHaveField(refT, priK) {
 			rs = rs.InnerJoin(goqu.I(refT), goqu.On(goqu.I(fmt.Sprintf("%s.%s", refT, priK)).Eq(goqu.I(fmt.Sprintf("%s.%s", priT, priK)))))
 		}
+	}
+	if opt.Search != "" {
+		searchEx := goqu.ExOr{}
+		for _, c := range s.dbMeta.GetTableMeta(opt.Table).Columns {
+			searchEx[c.ColumnName] = goqu.Op{"like": fmt.Sprintf("%%%s%%", opt.Search)}
+		}
+		rs = rs.Where(searchEx)
 	}
 	return
 }

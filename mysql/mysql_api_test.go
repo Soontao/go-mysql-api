@@ -43,7 +43,7 @@ func TestRetriveMetadata(t *testing.T) {
 func TestRowScan(t *testing.T) {
 	api := NewMysqlAPI(connectionStr, true)
 	defer api.Stop()
-	rs, err := api.query("select * from monitor limit ?", 2)
+	rs, err := api.query("select * from monitor Limit ?", 2)
 	if err != nil {
 		t.Error(err)
 	}

@@ -61,10 +61,11 @@ func SchemaPropsFromTbmeta(tMeta *mysql.TableMetadata) (tableSchema spec.SchemaP
 				Type:        spec.StringOrArray{dbTypeToSchemaType(col.DataType)},
 				Description: desc,
 				Title:       col.ColumnName,
-				Default:     col.DefaultValue,
+				Default:     col.GetDefaultValue(),
 				Enum:        getEnumIfItIs(col),
 			},
 		}
+
 	}
 	return
 }
