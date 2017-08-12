@@ -1,0 +1,201 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "XlNcYZzWvkShWxXuQRV/vc5qpxc=",
+			"path": "github.com/Bowery/prompt",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "NX4v3cbkXAJxFlrncqT9yEUBuoA=",
+			"path": "github.com/PuerkitoBio/purell",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "pvmScnaMFuAVLTxxOWjhGZBgPkg=",
+			"path": "github.com/PuerkitoBio/urlesc",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "GXOurDGgsLmJs0wounpdWZZRSGw=",
+			"path": "github.com/dgrijalva/jwt-go",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "6dTGC5A1Y1xnv+JSi9z8S6JfnH0=",
+			"path": "github.com/go-openapi/jsonpointer",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "YMNc0I/ifBw9TsnF13NTpIN9yu4=",
+			"path": "github.com/go-openapi/jsonreference",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "aqXFT7Wc3P0PPGlel/lxVDj4bWg=",
+			"path": "github.com/go-openapi/spec",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "Wz6dE9E9ZwCK4oWRr5lNazhgMY0=",
+			"path": "github.com/go-openapi/swag",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "Yi7+P8UCCOlHzzpWEN0U2nlGvz0=",
+			"path": "github.com/go-sql-driver/mysql",
+			"revision": "8fefef06da7707b5a3cda42195a6b409c9c9ab5c",
+			"revisionTime": "2017-06-16T13:16:31Z"
+		},
+		{
+			"checksumSHA1": "Y4wfk4hoMFULturaf67bv/1CgwM=",
+			"path": "github.com/labstack/echo",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "LtqhA32abPaDJSIsYD4C4Whf9eU=",
+			"path": "github.com/labstack/echo/middleware",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "NvfQq6Y6kh9cMw+y1m00ivEd5b4=",
+			"path": "github.com/labstack/gommon/bytes",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "R6DzcBLEP0BONPpsyr+11N7xh5w=",
+			"path": "github.com/labstack/gommon/color",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "uHA6zbtxzJce4r+6uk8zu11qkuk=",
+			"path": "github.com/labstack/gommon/log",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "lW02E/TGpV59u9q49TsK0Cmva0c=",
+			"path": "github.com/labstack/gommon/random",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "T8soMJArSZrYnhmdpAnq1bVxQ6Q=",
+			"path": "github.com/mailru/easyjson/buffer",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "Xw5HIdQ2vlr5wkKl+8ANM9xp5Zs=",
+			"path": "github.com/mailru/easyjson/jlexer",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "tMeVsfYgDW9K0spDZkOBlvZYssw=",
+			"path": "github.com/mailru/easyjson/jwriter",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "qNkx9+OTwZI6aFv7K9zuFCGODUw=",
+			"path": "github.com/mattn/go-colorable",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "U6lX43KDDlNOn+Z0Yyww+ZzHfFo=",
+			"path": "github.com/mattn/go-isatty",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "dDA4Side1z0a/wgWNBAFr/pMtQ8=",
+			"path": "github.com/mediocregopher/gojson",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "Wt3B+VyuxldXaHqtSy50Gwy27g8=",
+			"path": "github.com/mkideal/cli",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "/dGz97uMuuCCAWFgNqI1Wf/pU8g=",
+			"path": "github.com/mkideal/pkg/debug",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "Fg4yMJny/QorwTrQWkwJXHvW3Pc=",
+			"path": "github.com/mkideal/pkg/expr",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "LTOa3BADhwvT0wFCknPueQALm8I=",
+			"origin": "github.com/valyala/fasttemplate/vendor/github.com/valyala/bytebufferpool",
+			"path": "github.com/valyala/bytebufferpool",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "gtG8jeB0fcTmKZf+6Vbcoa6nfec=",
+			"path": "github.com/valyala/fasttemplate",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "Ag672Laei0E45NrvTO4LV9B3Jfc=",
+			"path": "golang.org/x/crypto/acme",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "TrKJW+flz7JulXU3sqnBJjGzgQc=",
+			"path": "golang.org/x/crypto/acme/autocert",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "g/Z/Ka0VgJESgQK7/SJCjm/aX0I=",
+			"path": "golang.org/x/net/idna",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "GlVnY+OiodlEKgT7cegC3hdzxOo=",
+			"path": "golang.org/x/sys/unix",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "faFDXp++cLjLBlvsr+izZ+go1WU=",
+			"path": "golang.org/x/text/secure/bidirule",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "ziMb9+ANGRJSSIuxYdRbA+cDRBQ=",
+			"path": "golang.org/x/text/transform",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "KG+XZAbxdkpBm3Fa3bJ3Ylq8CKI=",
+			"path": "golang.org/x/text/unicode/bidi",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "Anof4bt0AU+Sa3R8Rq0KBnlpbaQ=",
+			"path": "golang.org/x/text/unicode/norm",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "U1OTBlgTRUe9ZdMsbISL1E+eMm8=",
+			"path": "golang.org/x/text/width",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "UIK+G9OJJSiShRwjJeD9Pq3X4m8=",
+			"path": "gopkg.in/doug-martin/goqu.v4",
+			"revision": "99d9d852abd9e632e9f367063e474a258f01ced8",
+			"revisionTime": "2017-03-16T00:22:53Z"
+		},
+		{
+			"checksumSHA1": "NH/LganZdIuWt3c7WtC4i7Meyo0=",
+			"path": "gopkg.in/doug-martin/goqu.v4/adapters/mysql",
+			"revision": "99d9d852abd9e632e9f367063e474a258f01ced8",
+			"revisionTime": "2017-03-16T00:22:53Z"
+		},
+		{
+			"checksumSHA1": "o20lmjzBQyKD5LfLZ3OhUoMkLds=",
+			"path": "gopkg.in/yaml.v2",
+			"revision": ""
+		}
+	],
+	"rootPath": "github.com/Soontao/go-mysql-api"
+}

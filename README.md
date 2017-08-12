@@ -6,6 +6,8 @@ apify mysql database. based on [Echo](https://github.com/labstack/echo), [goqu](
 
 ## install
 
+get
+
 ```bash
 go get -u -v https://github.com/Soontao/go-mysql-api
 ```
@@ -14,9 +16,11 @@ or download binary from [release page](https://github.com/Soontao/go-mysql-api/r
 
 or with [docker container](https://hub.docker.com/r/theosun/go-mysql-api/)
 
-## command args
+or download from [here](https://download.fornever.org/go-mysql-api/latest/)
 
-you could run go-mysql-api from cli directly
+## start server
+
+You could run go-mysql-api binary from cli directly
 
 ```bash
 go-mysql-api --help
@@ -43,7 +47,7 @@ go-mysql-api -c "monitor:pass@tcp(mysql:3306)/monitor" -l "0.0.0.0:1323"
 [INFO] 2017-07-26T15:09:49.7367783+08:00 server start at :1323
 ```
 
-more information about connection str, you could see [here](https://github.com/go-sql-driver/mysql#examples)
+more information about connection str, please see [here](https://github.com/go-sql-driver/mysql#examples)
 
 ## docker
 
@@ -53,7 +57,7 @@ if you use docker, set environment vars to setup your server
 docker run -d --restart=always --link mariadb:mysql -p 1323:1323 -e API_CONN_STR='user:pass@tcp(domain:port)/db' -e API_HOST_LS=':1323' theosun/go-mysql-api:latest
 ```
 
-use correct link, or config with public mysql database
+please use correct link, or connectwith with public mysql database
 
 ## apis
 
@@ -152,7 +156,7 @@ body
 
 ## Advance query
 
-query apis could use **_limit**, **_skip**, **_field**, **_fields**, **_where**, **_link** query param
+query apis could use **_limit**, **_skip**, **_field**, **_fields**, **_where**, **_link** and **_search** in query param
 
 * easily whole table search, with **low query performance**
 
@@ -160,15 +164,15 @@ query apis could use **_limit**, **_skip**, **_field**, **_fields**, **_where**,
 
 ```sql
 SELECT * FROM `user`
-    WHERE
+  WHERE
     (
-        (`create_at` LIKE BINARY '%outlook%')
-            OR
-        (`uid` LIKE BINARY '%outlook%')
-            OR
-        (`uname` LIKE BINARY '%outlook%')
-            OR
-        (`utoken` LIKE BINARY '%outlook%')
+      (`create_at` LIKE BINARY '%outlook%')
+        OR
+      (`uid` LIKE BINARY '%outlook%')
+        OR
+      (`uname` LIKE BINARY '%outlook%')
+        OR
+      (`utoken` LIKE BINARY '%outlook%')
     )
 ```
 

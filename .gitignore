@@ -15,8 +15,6 @@
 
 # godep
 
-vendor
-.vendor*
 *.test
 *debug*
 
