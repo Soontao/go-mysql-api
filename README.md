@@ -6,7 +6,7 @@ apify mysql database. based on [Echo](https://github.com/labstack/echo), [goqu](
 
 ## install
 
-get
+get go-mysql-api with go env
 
 ```bash
 go get -u -v https://github.com/Soontao/go-mysql-api
@@ -14,9 +14,9 @@ go get -u -v https://github.com/Soontao/go-mysql-api
 
 or download binary from [release page](https://github.com/Soontao/go-mysql-api/releases) !
 
-or with [docker container](https://hub.docker.com/r/theosun/go-mysql-api/)
+or see [docker image](https://hub.docker.com/r/theosun/go-mysql-api/) instance
 
-or download from [here](https://download.fornever.org/go-mysql-api/latest/)
+or download latest build from [here](https://download.fornever.org/go-mysql-api/latest/)
 
 ## start server
 
@@ -57,7 +57,7 @@ if you use docker, set environment vars to setup your server
 docker run -d --restart=always --link mariadb:mysql -p 1323:1323 -e API_CONN_STR='user:pass@tcp(domain:port)/db' -e API_HOST_LS=':1323' theosun/go-mysql-api:latest
 ```
 
-please use correct link, or connectwith with public mysql database
+please use correct connection string, or connectwith with public mysql database
 
 ## apis
 
@@ -84,9 +84,11 @@ server.e.PUT("/api/batch/:table", server.endpointBatchCreate).Name = "Batch Crea
 
 ## Swagger Support
 
-You can open **/api/swagger-ui.html** to see all crud documents, the interactive documention will be helpful.
+The go-mysql-api support swagger.json and provide swagger.html page
 
-And **go-mysql-api** also provides the *swagger.json* with **/api/swagger.json**
+You could open **/api/swagger-ui.html** to see swagger documents, the interactive documention will be helpful.
+
+And **go-mysql-api** provide the *swagger.json* at path **/api/swagger.json**
 
 ## Get DB Metadata
 
@@ -158,11 +160,12 @@ body
 
 query apis could use **_limit**, **_skip**, **_field**, **_fields**, **_where**, **_link** and **_search** in query param
 
-* easily whole table search, with **low query performance**
+### Whole table search, with **low query performance**
 
 `GET /api/user?_search=outlook`
 
 ```sql
+-- SQL mapping
 SELECT * FROM `user`
   WHERE
     (
@@ -174,16 +177,17 @@ SELECT * FROM `user`
         OR
       (`utoken` LIKE BINARY '%outlook%')
     )
+
 ```
 
-* auto join and powerful query
+### Auto join and custome query
 
 You could use `in`, `notIn`, `like`, `is`, `neq`, `isNot` and `eq` in `_where` param
 
 `GET /api/monitor?_link=user&_link=monitor_log&_limit=100&_where='user.uid'.in(11,22)&_where='monitor_log.success'.eq(false)`
 
 ```sql
-
+-- SQL mapping
 SELECT * FROM `monitor`
   INNER JOIN `user`
     ON (`user`.`uid` = `monitor`.`uid`)
