@@ -34,7 +34,7 @@ func AppendPathsFor(meta *TableMetadata, paths map[string]spec.PathItem) () {
 
 	if !isView {
 		// /api/:table group
-		withoutIDPathItem.Put = NewOperation(
+		withoutIDPathItem.Post = NewOperation(
 			tName,
 			fmt.Sprintf("create a %s record", tName),
 			[]spec.Parameter{NewParamForDefinition(tName)},
@@ -53,7 +53,7 @@ func AppendPathsFor(meta *TableMetadata, paths map[string]spec.PathItem) () {
 			append(NewQueryParametersForMySQLAPI(), NewPathIDParameter(meta)),
 			NewDefinitionMessageWrap(tName, NewRefSchema(tName, "array")).SchemaProps,
 		)
-		withIDPathItem.Post = NewOperation(
+		withIDPathItem.Patch = NewOperation(
 			tName,
 			fmt.Sprintf("update specific %s record", tName),
 			append([]spec.Parameter{NewParamForDefinition(tName)}, NewPathIDParameter(meta)),
@@ -66,7 +66,7 @@ func AppendPathsFor(meta *TableMetadata, paths map[string]spec.PathItem) () {
 			NewDefinitionMessageWrap(tName, NewCUDOperationReturnMessage()).SchemaProps,
 		)
 		// Batch group
-		withoutIDBatchPathItem.Put = NewOperation(
+		withoutIDBatchPathItem.Post = NewOperation(
 			tName,
 			fmt.Sprintf("Batch create %s records", tName),
 			[]spec.Parameter{NewParamForArrayDefinition(tName)},

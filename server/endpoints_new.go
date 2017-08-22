@@ -18,14 +18,14 @@ func mountEndpoints(s *echo.Echo, api inter.IDatabaseAPI) {
 	s.GET("/api/swagger-ui.html", endpointSwaggerUI).Name = "Swagger UI"
 
 	s.GET("/api/:table", endpointTableGet(api)).Name = "Retrive Some Records"
-	s.PUT("/api/:table", endpointTableCreate(api)).Name = "Create Single Record"
+	s.POST("/api/:table", endpointTableCreate(api)).Name = "Create Single Record"
 	s.DELETE("/api/:table", endpointTableDelete(api)).Name = "Remove Some Records"
 
 	s.GET("/api/:table/:id", endpointTableGetSpecific(api)).Name = "Retrive Record By ID"
 	s.DELETE("/api/:table/:id", endpointTableDeleteSpecific(api)).Name = "Delete Record By ID"
-	s.POST("/api/:table/:id", endpointTableUpdateSpecific(api)).Name = "Update Record By ID"
+	s.PATCH("/api/:table/:id", endpointTableUpdateSpecific(api)).Name = "Update Record By ID"
 
-	s.PUT("/api/batch/:table", endpointBatchCreate(api)).Name = "Batch Create Records"
+	s.POST("/api/batch/:table", endpointBatchCreate(api)).Name = "Batch Create Records"
 }
 
 func endpointSwaggerUI(c echo.Context) error {

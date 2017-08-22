@@ -8,25 +8,25 @@ import (
 
 // DataBaseMetadata metadata of a database
 type DataBaseMetadata struct {
-	DatabaseName string           // database name
-	Tables       []*TableMetadata // collection of tables
+	DatabaseName string           `json:"database_name,omitempty"` // database name
+	Tables       []*TableMetadata `json:"tables,omitempty"`        // collection of tables
 }
 
 // TableMetadata metadata of a Table
 type TableMetadata struct {
-	TableName    string //Table name
-	TableType    string
-	TableRows    int64
-	CurrentIncre int64
-	Comment      string
-	Columns      []*ColumnMetadata //collections of column
+	TableName    string            `json:"table_name,omitempty"` //Table name
+	TableType    string            `json:"table_type,omitempty"`
+	TableRows    int64             `json:"table_rows,omitempty"`
+	CurrentIncre int64             `json:"current_increment,omitempty"`
+	Comment      string            `json:"comment,omitempty"`
+	Columns      []*ColumnMetadata `json:"columns,omitempty"` //collections of column
 }
 
 // ColumnMetadata metadata of a column
 type ColumnMetadata struct {
-	ColumnName string // column name or code ?
-	ColumnType string // column type
-	NullAble   string // column null able
+	ColumnName string `json:"column_name,omitempty"` // column name or code ?
+	ColumnType string `json:"column_type,omitempty"` // column type
+	NullAble   string `json:"nullable,omitempty"`    // column null able
 	// If Key is PRI, the column is a PRIMARY KEY or is one of the
 	// columns in a multiple-column PRIMARY KEY.
 
@@ -37,12 +37,12 @@ type ColumnMetadata struct {
 	// permitted within the column. The column is the first column
 	// of a nonunique index or a unique-valued index that can contain
 	// NULL values.
-	Key              string // column key type
-	DefaultValue     string // default value if have
-	Extra            string // extra info, for example, auto_increment
-	OridinalSequence int64
-	DataType         string
-	Comment          string
+	Key              string `json:"key,omitempty"`           // column key type
+	DefaultValue     string `json:"default_value,omitempty"` // default value if have
+	Extra            string `json:"extra,omitempty"`         // extra info, for example, auto_increment
+	OridinalSequence int64  `json:"oridinal_sequence,omitempty"`
+	DataType         string `json:"data_type,omitempty"`
+	Comment          string `json:"comment,omitempty"`
 }
 
 // QueryConfig for Select method

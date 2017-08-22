@@ -66,29 +66,29 @@ please use correct connection string, or connectwith with public mysql database
 if you have any web dev experience, apis will easy to understand
 
 ```golang
-server.e.GET("/api/metadata", server.endpointMetadata).Name = "Database Metadata"
-server.e.POST("/api/echo", server.endpointEcho).Name = "Echo API"
-server.e.GET("/api/endpoints", server.endpointServerEndpoints).Name = "Server Endpoints"
-server.e.GET("/api/updatemetadata", server.endpointUpdateMetadata).Name = "Update DB Metadata"
-server.e.GET("/api/swagger.json", server.endpointSwaggerJSON).Name = "Swagger Infomation"
-server.e.GET("/api/swagger-ui.html", server.endpointSwaggerUI).Name = "Swagger UI"
+s.GET("/api/metadata", endpointMetadata(api)).Name = "Database Metadata"
+s.POST("/api/echo", endpointEcho).Name = "Echo API"
+s.GET("/api/endpoints", endpointServerEndpoints(s)).Name = "Server Endpoints"
+s.GET("/api/updatemetadata", endpointUpdateMetadata(api)).Name = "Update DB Metadata"
+s.GET("/api/swagger.json", endpointSwaggerJSON(api)).Name = "Swagger Infomation"
+s.GET("/api/swagger-ui.html", endpointSwaggerUI).Name = "Swagger UI"
 
-server.e.GET("/api/:table", server.endpointTableGet).Name = "Retrive Some Records"
-server.e.PUT("/api/:table", server.endpointTableCreate).Name = "Create Single Record"
-server.e.DELETE("/api/:table", server.endpointTableDelete).Name = "Remove Some Records"
+s.GET("/api/:table", endpointTableGet(api)).Name = "Retrive Some Records"
+s.POST("/api/:table", endpointTableCreate(api)).Name = "Create Single Record"
+s.DELETE("/api/:table", endpointTableDelete(api)).Name = "Remove Some Records"
 
-server.e.GET("/api/:table/:id", server.endpointTableGetSpecific).Name = "Retrive Record By ID"
-server.e.DELETE("/api/:table/:id", server.endpointTableDeleteSpecific).Name = "Delete Record By ID"
-server.e.POST("/api/:table/:id", server.endpointTableUpdateSpecific).Name = "Update Record By ID"
+s.GET("/api/:table/:id", endpointTableGetSpecific(api)).Name = "Retrive Record By ID"
+s.DELETE("/api/:table/:id", endpointTableDeleteSpecific(api)).Name = "Delete Record By ID"
+s.PATCH("/api/:table/:id", endpointTableUpdateSpecific(api)).Name = "Update Record By ID"
 
-server.e.PUT("/api/batch/:table", server.endpointBatchCreate).Name = "Batch Create Records"
+s.POST("/api/batch/:table", endpointBatchCreate(api)).Name = "Batch Create Records"
 ```
 
-## Swagger Support
+## Swagger UI Support
 
 The go-mysql-api support swagger.json and provide swagger.html page
 
-You could open **/api/swagger-ui.html** to see swagger documents, the interactive documention will be helpful.
+Open **/api/swagger-ui.html** to see swagger documents, the interactive documention will be helpful.
 
 And **go-mysql-api** provide the *swagger.json* at path **/api/swagger.json**
 
@@ -96,36 +96,9 @@ And **go-mysql-api** provide the *swagger.json* at path **/api/swagger.json**
 
 You could use **GET** `/api/metadata` get database metadata, or with `?simple=true` param to get simple metadata
 
-```json
-
-{
-    "[BASE TABLE] (111802 rows) monitor_log": [
-        "lid int(11)  NullAble(NO) 'Log ID'",
-        "mid int(11)  NullAble(NO) 'Monitor ID'",
-        "success tinyint(1)  NullAble(NO) 'Is Success'",
-        "duration int(5)  NullAble(NO) 'Request duration'",
-        "create_at datetime current_timestamp() NullAble(NO) ''"
-    ],
-    "[BASE TABLE] (2 rows) user": [
-        "uid int(11)  NullAble(NO) 'User ID'",
-        "uname varchar(128)  NullAble(NO) 'User Name/Email'",
-        "utoken varchar(32)  NullAble(NO) 'User Token'",
-        "create_at datetime current_timestamp() NullAble(NO) ''"
-    ],
-    "[BASE TABLE] (3 rows) monitor": [
-        "mid int(11)  NullAble(NO) 'Monitor ID'",
-        "uid int(11)  NullAble(NO) 'User ID'",
-        "type enum('TCP','HTTP')  NullAble(NO) 'Monitor Type'",
-        "target varchar(255)  NullAble(NO) 'Monitor check target'",
-        "create_at datetime current_timestamp() NullAble(YES) ''"
-    ]
-}
-
-```
-
 ## Operate record
 
-* use **PUT `/api/user`** method to create new user record
+* use **POST `/api/user`** method to create new user record
 
 body
 

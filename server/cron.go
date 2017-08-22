@@ -9,7 +9,7 @@ func (m *MysqlAPIServer) StartMetadataRefreshCron() {
 	c := cron.New()
 	c.AddFunc("@every 5m", func() {
 		m.api.UpdateAPIMetadata()
-		m.e.Logger.Infof("metadata updated !")
+		m.Logger.Infof("metadata updated !")
 	})
 	c.Start()
 }

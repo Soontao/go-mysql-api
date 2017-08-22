@@ -11,7 +11,7 @@ var Logger = NewLogger()
 
 // NewLogger for instance
 func NewLogger() (l *log.Logger) {
-	l = log.New("mysql-api-server")
+	l = log.New("database-api-server")
 	l.SetHeader(`[${level}] ${time_rfc3339_nano}`)
 	l.SetLevel(log.DEBUG)
 	l.SetOutput(os.Stdout)

@@ -1,12 +1,22 @@
 #/bin/bash
 
+set -v on
+
+if which govendor 2>/dev/null; then
+ echo 'govendor exist'
+else
+ go get -u -v github.com/kardianos/govendor
+ echo 'govendor does not exist'
+fi
+
+
 export GOOS=linux GOARCH=amd64
-go build -o "${PWD##*/}-${GOOS}-${GOARCH}"
+govendor build -o "${PWD##*/}-${GOOS}-${GOARCH}"
 export GOOS=linux GOARCH=386 
-go build -o "${PWD##*/}-${GOOS}-${GOARCH}"
+govendor build -o "${PWD##*/}-${GOOS}-${GOARCH}"
 export GOOS=linux GOARCH=arm64 
-go build -o "${PWD##*/}-${GOOS}-${GOARCH}"
+govendor build -o "${PWD##*/}-${GOOS}-${GOARCH}"
 export GOOS=darwin GOARCH=amd64
-go build -o "${PWD##*/}-${GOOS}-${GOARCH}"
+govendor build -o "${PWD##*/}-${GOOS}-${GOARCH}"
 export GOOS=windows GOARCH=amd64
-go build -o "${PWD##*/}-${GOOS}-${GOARCH}.exe"
+govendor build -o "${PWD##*/}-${GOOS}-${GOARCH}.exe"
