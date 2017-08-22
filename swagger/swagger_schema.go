@@ -4,9 +4,9 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/Soontao/go-mysql-api/mysql"
 	"github.com/go-openapi/spec"
 	"fmt"
+	types    "github.com/Soontao/go-mysql-api/t"
 )
 
 func dbTypeToSchemaType(t string) (rt_t string) {
@@ -23,7 +23,7 @@ func dbTypeToSchemaType(t string) (rt_t string) {
 	return
 }
 
-func getEnumIfItIs(c *mysql.ColumnMetadata) (enum []interface{}) {
+func getEnumIfItIs(c *types.ColumnMetadata) (enum []interface{}) {
 	enum = make([]interface{}, 0)
 	re := regexp.MustCompile("\\'([\\w]+)\\'")
 	if strings.HasPrefix(c.ColumnType, "enum") {
@@ -35,7 +35,7 @@ func getEnumIfItIs(c *mysql.ColumnMetadata) (enum []interface{}) {
 	return
 }
 
-func ColumnSchema(col *mysql.ColumnMetadata) (s *spec.Schema) {
+func ColumnSchema(col *types.ColumnMetadata) (s *spec.Schema) {
 	s = &spec.Schema{
 		SchemaProps: spec.SchemaProps{
 			Type: spec.StringOrArray{dbTypeToSchemaType(col.DataType)},
@@ -44,7 +44,7 @@ func ColumnSchema(col *mysql.ColumnMetadata) (s *spec.Schema) {
 	return
 }
 
-func SchemaPropsFromTbmeta(tMeta *mysql.TableMetadata) (tableSchema spec.SchemaProps) {
+func SchemaPropsFromTbmeta(tMeta *types.TableMetadata) (tableSchema spec.SchemaProps) {
 	tableSchema = spec.SchemaProps{}
 	tableSchema.Required = []string{}
 	tableSchema.Properties = map[string]spec.Schema{}

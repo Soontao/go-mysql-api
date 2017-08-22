@@ -5,13 +5,13 @@ import (
 	"github.com/Soontao/go-mysql-api/mysql"
 	"github.com/go-openapi/spec"
 	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
+	"github.com/Soontao/go-mysql-api/inter"
 )
 
 // MysqlAPIServer is a http server could access mysql api
 type MysqlAPIServer struct {
 	e       *echo.Echo
-	api     *mysql.MysqlAPI
+	api     inter.IDatabaseAPI
 	swagger *spec.Swagger
 }
 
@@ -22,9 +22,7 @@ func NewMysqlAPIServer(dbURI string, useInformationSchema bool) *MysqlAPIServer 
 	server.e.HTTPErrorHandler = customErrorHandler
 	server.e.HideBanner = true
 	server.e.Logger = lib.Logger
-	server.e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
-		Format: "[REQ] ${time_rfc3339_nano} ${method} (HTTP${status}) ${uri} ${latency}ns\n",
-	}))
+	server.e.Use(loggerMiddleware())
 	server.api = mysql.NewMysqlAPI(dbURI, useInformationSchema)
 	mountEndpoints(server.e, server.api)
 	return server

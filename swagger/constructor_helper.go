@@ -2,15 +2,14 @@ package swagger
 
 import (
 	"github.com/go-openapi/spec"
-	"github.com/Soontao/go-mysql-api/mysql"
 	"fmt"
 	"github.com/Soontao/go-mysql-api/key"
+	. "github.com/Soontao/go-mysql-api/t"
 )
 
 func NewRefSchema(refDefinationName, reftype string) (s spec.Schema) {
 	s = spec.Schema{
-		spec.VendorExtensible{},
-		spec.SchemaProps{
+		SchemaProps: spec.SchemaProps{
 			Type: spec.StringOrArray{reftype},
 			Items: &spec.SchemaOrArray{
 				&spec.Schema{
@@ -24,8 +23,6 @@ func NewRefSchema(refDefinationName, reftype string) (s spec.Schema) {
 				nil,
 			},
 		},
-		spec.SwaggerSchemaProps{},
-		nil,
 	}
 	return
 }
@@ -80,8 +77,7 @@ func NewCUDOperationReturnArrayMessage() (s spec.Schema) {
 func NewDefinitionMessageWrap(definitionName string, data spec.Schema) (sWrap *spec.Schema) {
 
 	sWrap = &spec.Schema{
-		spec.VendorExtensible{},
-		spec.SchemaProps{
+		SchemaProps: spec.SchemaProps{
 			Type: spec.StringOrArray{"object"},
 			Properties: map[string]spec.Schema{
 				"status":  NewField("status", "integer", 200),
@@ -89,13 +85,12 @@ func NewDefinitionMessageWrap(definitionName string, data spec.Schema) (sWrap *s
 				"data":    data,
 			},
 		},
-		spec.SwaggerSchemaProps{},
-		nil,
+		SwaggerSchemaProps: spec.SwaggerSchemaProps{},
 	}
 	return
 }
 
-func NewSwaggerInfo(meta *mysql.DataBaseMetadata, version string) (info *spec.Info) {
+func NewSwaggerInfo(meta *DataBaseMetadata, version string) (info *spec.Info) {
 	info = &spec.Info{spec.VendorExtensible{}, spec.InfoProps{
 		Title:       fmt.Sprintf("Database %s API", meta.DatabaseName),
 		Version:     version,
@@ -104,7 +99,7 @@ func NewSwaggerInfo(meta *mysql.DataBaseMetadata, version string) (info *spec.In
 	return
 }
 
-func GetParametersFromDbMetadata(meta *mysql.DataBaseMetadata) (params map[string]spec.Parameter) {
+func GetParametersFromDbMetadata(meta *DataBaseMetadata) (params map[string]spec.Parameter) {
 	params = make(map[string]spec.Parameter)
 	for _, t := range meta.Tables {
 		for _, col := range t.Columns {
@@ -149,7 +144,7 @@ func NewQueryParameter(paramName, paramDescription, paramType string, required b
 	return
 }
 
-func NewPathIDParameter(tMeta *mysql.TableMetadata) (p spec.Parameter) {
+func NewPathIDParameter(tMeta *TableMetadata) (p spec.Parameter) {
 	p = spec.Parameter{
 		SimpleSchema: spec.SimpleSchema{
 			Type: "string",

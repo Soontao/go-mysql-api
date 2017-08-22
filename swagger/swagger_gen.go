@@ -2,10 +2,10 @@ package swagger
 
 import (
 	"github.com/go-openapi/spec"
-	"github.com/Soontao/go-mysql-api/mysql"
+	types    "github.com/Soontao/go-mysql-api/t"
 )
 
-func GenSwaggerFromDBMetadata(dbMetadata *mysql.DataBaseMetadata) (s *spec.Swagger) {
+func GenSwaggerFromDBMetadata(dbMetadata *types.DataBaseMetadata) (s *spec.Swagger) {
 	s = &spec.Swagger{}
 	s.SwaggerProps = spec.SwaggerProps{}
 	s.Swagger = "2.0"

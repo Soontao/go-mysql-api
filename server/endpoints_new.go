@@ -5,11 +5,11 @@ import (
 	"github.com/Soontao/go-mysql-api/swagger"
 	"github.com/labstack/echo"
 	"github.com/Soontao/go-mysql-api/static"
-	"github.com/Soontao/go-mysql-api/mysql"
+	"github.com/Soontao/go-mysql-api/inter"
 )
 
 // mountEndpoints to echo server
-func mountEndpoints(s *echo.Echo, api *mysql.MysqlAPI) {
+func mountEndpoints(s *echo.Echo, api inter.IDatabaseAPI) {
 	s.GET("/api/metadata", endpointMetadata(api)).Name = "Database Metadata"
 	s.POST("/api/echo", endpointEcho).Name = "Echo API"
 	s.GET("/api/endpoints", endpointServerEndpoints(s)).Name = "Server Endpoints"
@@ -32,7 +32,7 @@ func endpointSwaggerUI(c echo.Context) error {
 	return c.HTML(http.StatusOK, static.SWAGGER_UI_HTML)
 }
 
-func endpointSwaggerJSON(api *mysql.MysqlAPI) func(c echo.Context) error {
+func endpointSwaggerJSON(api inter.IDatabaseAPI) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		s := swagger.GenSwaggerFromDBMetadata(api.GetDatabaseMetadata())
 		s.Host = c.Request().Host
@@ -41,7 +41,7 @@ func endpointSwaggerJSON(api *mysql.MysqlAPI) func(c echo.Context) error {
 	}
 }
 
-func endpointMetadata(api *mysql.MysqlAPI) func(c echo.Context) error {
+func endpointMetadata(api inter.IDatabaseAPI) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		if c.QueryParam("simple") == "true" {
 			return goJSON(c, http.StatusOK, api.GetDatabaseMetadata().GetSimpleMetadata())
@@ -58,14 +58,14 @@ func endpointEcho(c echo.Context) (err error) {
 	return JSONMessage(c, "echo api", bodyM)
 }
 
-func endpointUpdateMetadata(api *mysql.MysqlAPI) func(c echo.Context) error {
+func endpointUpdateMetadata(api inter.IDatabaseAPI) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		api.UpdateAPIMetadata()
 		return JSONMessage(c, "metadata refreshed", nil)
 	}
 }
 
-func endpointTableGet(api *mysql.MysqlAPI) func(c echo.Context) error {
+func endpointTableGet(api inter.IDatabaseAPI) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		tableName := c.Param("table")
 		option := parseQueryParamsNew(c)
@@ -78,7 +78,7 @@ func endpointTableGet(api *mysql.MysqlAPI) func(c echo.Context) error {
 	}
 }
 
-func endpointTableGetSpecific(api *mysql.MysqlAPI) func(c echo.Context) error {
+func endpointTableGetSpecific(api inter.IDatabaseAPI) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		tableName := c.Param("table")
 		id := c.Param("id")
@@ -93,7 +93,7 @@ func endpointTableGetSpecific(api *mysql.MysqlAPI) func(c echo.Context) error {
 	}
 }
 
-func endpointTableCreate(api *mysql.MysqlAPI) func(c echo.Context) error {
+func endpointTableCreate(api inter.IDatabaseAPI) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		payload, err := bodyMapOf(c)
 		tableName := c.Param("table")
@@ -112,7 +112,7 @@ func endpointTableCreate(api *mysql.MysqlAPI) func(c echo.Context) error {
 	}
 }
 
-func endpointTableUpdateSpecific(api *mysql.MysqlAPI) func(c echo.Context) error {
+func endpointTableUpdateSpecific(api inter.IDatabaseAPI) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		payload, err := bodyMapOf(c)
 		tableName := c.Param("table")
@@ -132,7 +132,7 @@ func endpointTableUpdateSpecific(api *mysql.MysqlAPI) func(c echo.Context) error
 	}
 }
 
-func endpointTableDelete(api *mysql.MysqlAPI) func(c echo.Context) error {
+func endpointTableDelete(api inter.IDatabaseAPI) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		payload, err := bodyMapOf(c)
 		tableName := c.Param("table")
@@ -151,7 +151,7 @@ func endpointTableDelete(api *mysql.MysqlAPI) func(c echo.Context) error {
 	}
 }
 
-func endpointTableDeleteSpecific(api *mysql.MysqlAPI) func(c echo.Context) error {
+func endpointTableDeleteSpecific(api inter.IDatabaseAPI) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		tableName := c.Param("table")
 		id := c.Param("id")
@@ -167,7 +167,7 @@ func endpointTableDeleteSpecific(api *mysql.MysqlAPI) func(c echo.Context) error
 	}
 }
 
-func endpointBatchCreate(api *mysql.MysqlAPI) func(c echo.Context) error {
+func endpointBatchCreate(api inter.IDatabaseAPI) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		payload, err := bodySliceOf(c)
 		msg := make([]map[string]interface{}, 0)

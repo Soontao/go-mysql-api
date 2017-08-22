@@ -4,12 +4,13 @@ import (
 	"database/sql"
 	"fmt"
 	"time"
-
+	. "github.com/Soontao/go-mysql-api/t"
 	"github.com/Soontao/go-mysql-api/lib"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/labstack/gommon/log"
 	"gopkg.in/doug-martin/goqu.v4"
 	_ "gopkg.in/doug-martin/goqu.v4/adapters/mysql"
+	"github.com/Soontao/go-mysql-api/inter"
 )
 
 // MysqlAPI
@@ -50,7 +51,7 @@ func (api *MysqlAPI) GetDatabaseMetadata() *DataBaseMetadata {
 // UpdateAPIMetadata use to update the metadata of the MySQLAPI instance
 //
 // If database tables structure changed, it will be useful
-func (api *MysqlAPI) UpdateAPIMetadata() *MysqlAPI {
+func (api *MysqlAPI) UpdateAPIMetadata() inter.IDatabaseAPI {
 	if api.useInformationSchema {
 		api.databaseMetadata = api.retriveDatabaseMetadataFromInfoSchema(api.CurrentDatabaseName())
 	} else {
@@ -214,8 +215,8 @@ func (api *MysqlAPI) query(sql string, args ...interface{}) ([]map[string]interf
 		}
 		m := make(map[string]interface{})
 		for i, colName := range cols {
-			// Yap! Any integer based type will use int type
-			// Other type will convert to string, include decimal, date and others
+			// Yap! Any integer based types will use int types
+			// Other types will convert to string, include decimal, date and others
 			colV := *columnPointers[i].(*interface{})
 			switch (colV).(type) {
 			case int64:
@@ -254,7 +255,7 @@ func (api *MysqlAPI) Update(table string, id interface{}, obj map[string]interfa
 		}
 		return api.exec(sql)
 	} else {
-		err = fmt.Errorf("not support update by where")
+		err = fmt.Errorf("please give inot support update by where")
 		return
 	}
 }

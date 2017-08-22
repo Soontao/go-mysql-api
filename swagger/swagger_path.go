@@ -3,10 +3,10 @@ package swagger
 import (
 	"github.com/go-openapi/spec"
 	"fmt"
-	"github.com/Soontao/go-mysql-api/mysql"
+	. "github.com/Soontao/go-mysql-api/t"
 )
 
-func SwaggerPathsFromDatabaseMetadata(meta *mysql.DataBaseMetadata) (paths map[string]spec.PathItem) {
+func SwaggerPathsFromDatabaseMetadata(meta *DataBaseMetadata) (paths map[string]spec.PathItem) {
 	paths = make(map[string]spec.PathItem)
 	for _, t := range meta.Tables {
 		AppendPathsFor(t, paths)
@@ -14,7 +14,7 @@ func SwaggerPathsFromDatabaseMetadata(meta *mysql.DataBaseMetadata) (paths map[s
 	return
 }
 
-func AppendPathsFor(meta *mysql.TableMetadata, paths map[string]spec.PathItem) () {
+func AppendPathsFor(meta *TableMetadata, paths map[string]spec.PathItem) () {
 	tName := meta.TableName
 	isView := meta.TableType == "VIEW"
 	apiNoIDPath := fmt.Sprintf("/api/%s", tName)

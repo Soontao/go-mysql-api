@@ -16,8 +16,9 @@ import (
 	"github.com/labstack/echo"
 	"github.com/mediocregopher/gojson"
 	"strings"
-	"github.com/Soontao/go-mysql-api/mysql"
 	"github.com/Soontao/go-mysql-api/key"
+	types    "github.com/Soontao/go-mysql-api/t"
+	"github.com/labstack/echo/middleware"
 )
 
 // Message
@@ -25,6 +26,12 @@ type Message struct {
 	Status  int         `json:"status"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data"`
+}
+
+func loggerMiddleware() echo.MiddlewareFunc {
+	return middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Format: "[REQ] ${time_rfc3339_nano} ${method} (HTTP${status}) ${uri} ${latency}ns\n",
+	})
 }
 
 func goJSON(c echo.Context, code int, i interface{}) error {
@@ -72,8 +79,8 @@ func customErrorHandler(err error, c echo.Context) {
 	}
 }
 
-func parseQueryParamsNew(c echo.Context) (option mysql.QueryOption) {
-	option = mysql.QueryOption{}
+func parseQueryParamsNew(c echo.Context) (option types.QueryOption) {
+	option = types.QueryOption{}
 	queryParam := c.QueryParams()
 	option.Limit, option.Offset, option.Fields, option.Wheres, option.Links = parseQueryParams(c)
 	if queryParam[key.KEY_QUERY_SEARCH] != nil {
@@ -87,29 +94,29 @@ func parseQueryParamsNew(c echo.Context) (option mysql.QueryOption) {
 
 func parseQueryParams(c echo.Context) (limit int, offset int, fields []string, wheres map[string]goqu.Op, links []string) {
 	queryParam := c.QueryParams()
-	limit, _ = strconv.Atoi(c.QueryParam("_limit"))
-	offset, _ = strconv.Atoi(c.QueryParam("_skip"))
+	limit, _ = strconv.Atoi(c.QueryParam(key.KEY_QUERY_LIMIT)) // _limit
+	offset, _ = strconv.Atoi(c.QueryParam(key.KEY_QUERY_SKIP)) // _skip
 	fields = make([]string, 0)
-	if queryParam["_fields"] != nil {
-		for _, sArrFields := range queryParam["_fields"] {
+	if queryParam[key.KEY_QUERY_FIELDS] != nil { // _fields
+		for _, sArrFields := range queryParam[key.KEY_QUERY_FIELDS] {
 			fields = append(fields, strings.Split(sArrFields, ",")...)
 		}
 	}
-	if queryParam["_field"] != nil {
-		for _, f := range queryParam["_field"] {
+	if queryParam[key.KEY_QUERY_FIELD] != nil { // _field
+		for _, f := range queryParam[key.KEY_QUERY_FIELD] {
 			fields = append(fields, f)
 		}
 	}
-	if queryParam["_link"] != nil {
-		links = make([]string, len(queryParam["_link"]))
-		for idx, f := range queryParam["_link"] {
+	if queryParam[key.KEY_QUERY_LINK] != nil { // _link
+		links = make([]string, len(queryParam[key.KEY_QUERY_LINK]))
+		for idx, f := range queryParam[key.KEY_QUERY_LINK] {
 			links[idx] = f
 		}
 	}
 	r := regexp.MustCompile("\\'(.*?)\\'\\.([\\w]+)\\((.*?)\\)")
-	if queryParam["_where"] != nil {
+	if queryParam[key.KEY_QUERY_WHERE] != nil {
 		wheres = make(map[string]goqu.Op)
-		for _, sWhere := range queryParam["_where"] {
+		for _, sWhere := range queryParam[key.KEY_QUERY_WHERE] {
 			arr := r.FindStringSubmatch(sWhere)
 			if len(arr) == 4 {
 				switch arr[2] {

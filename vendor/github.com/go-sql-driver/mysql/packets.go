@@ -30,9 +30,6 @@ func (mc *mysqlConn) readPacket() ([]byte, error) {
 		// read packet header
 		data, err := mc.buf.readNext(4)
 		if err != nil {
-			if cerr := mc.canceled.Value(); cerr != nil {
-				return nil, cerr
-			}
 			errLog.Print(err)
 			mc.Close()
 			return nil, driver.ErrBadConn
@@ -66,9 +63,6 @@ func (mc *mysqlConn) readPacket() ([]byte, error) {
 		// read packet body [pktLen bytes]
 		data, err = mc.buf.readNext(pktLen)
 		if err != nil {
-			if cerr := mc.canceled.Value(); cerr != nil {
-				return nil, cerr
-			}
 			errLog.Print(err)
 			mc.Close()
 			return nil, driver.ErrBadConn
@@ -131,13 +125,8 @@ func (mc *mysqlConn) writePacket(data []byte) error {
 
 		// Handle error
 		if err == nil { // n != len(data)
-			mc.cleanup()
 			errLog.Print(ErrMalformPkt)
 		} else {
-			if cerr := mc.canceled.Value(); cerr != nil {
-				return cerr
-			}
-			mc.cleanup()
 			errLog.Print(err)
 		}
 		return driver.ErrBadConn
@@ -562,21 +551,6 @@ func (mc *mysqlConn) handleErrorPacket(data []byte) error {
 	// Error Number [16 bit uint]
 	errno := binary.LittleEndian.Uint16(data[1:3])
 
-	// 1792: ER_CANT_EXECUTE_IN_READ_ONLY_TRANSACTION
-	if errno == 1792 && mc.cfg.RejectReadOnly {
-		// Oops; we are connected to a read-only connection, and won't be able
-		// to issue any write statements. Since RejectReadOnly is configured,
-		// we throw away this connection hoping this one would have write
-		// permission. This is specifically for a possible race condition
-		// during failover (e.g. on AWS Aurora). See README.md for more.
-		//
-		// We explicitly close the connection before returning
-		// driver.ErrBadConn to ensure that `database/sql` purges this
-		// connection and initiates a new one for next statement next time.
-		mc.Close()
-		return driver.ErrBadConn
-	}
-
 	pos := 3
 
 	// SQL State [optional: # + 5bytes string]
@@ -702,7 +676,7 @@ func (mc *mysqlConn) readColumns(count int) ([]mysqlField, error) {
 		pos += n + 1 + 2 + 4
 
 		// Field type [uint8]
-		columns[i].fieldType = data[pos]
+		columns[i].fieldType = fieldType(data[pos])
 		pos++
 
 		// Flags [uint16]
@@ -986,7 +960,7 @@ func (stmt *mysqlStmt) writeExecutePacket(args []driver.Value) error {
 			// build NULL-bitmap
 			if arg == nil {
 				nullMask[i/8] |= 1 << (uint(i) & 7)
-				paramTypes[i+i] = fieldTypeNULL
+				paramTypes[i+i] = byte(fieldTypeNULL)
 				paramTypes[i+i+1] = 0x00
 				continue
 			}
@@ -994,7 +968,7 @@ func (stmt *mysqlStmt) writeExecutePacket(args []driver.Value) error {
 			// cache types and values
 			switch v := arg.(type) {
 			case int64:
-				paramTypes[i+i] = fieldTypeLongLong
+				paramTypes[i+i] = byte(fieldTypeLongLong)
 				paramTypes[i+i+1] = 0x00
 
 				if cap(paramValues)-len(paramValues)-8 >= 0 {
@@ -1010,7 +984,7 @@ func (stmt *mysqlStmt) writeExecutePacket(args []driver.Value) error {
 				}
 
 			case float64:
-				paramTypes[i+i] = fieldTypeDouble
+				paramTypes[i+i] = byte(fieldTypeDouble)
 				paramTypes[i+i+1] = 0x00
 
 				if cap(paramValues)-len(paramValues)-8 >= 0 {
@@ -1026,7 +1000,7 @@ func (stmt *mysqlStmt) writeExecutePacket(args []driver.Value) error {
 				}
 
 			case bool:
-				paramTypes[i+i] = fieldTypeTiny
+				paramTypes[i+i] = byte(fieldTypeTiny)
 				paramTypes[i+i+1] = 0x00
 
 				if v {
@@ -1038,7 +1012,7 @@ func (stmt *mysqlStmt) writeExecutePacket(args []driver.Value) error {
 			case []byte:
 				// Common case (non-nil value) first
 				if v != nil {
-					paramTypes[i+i] = fieldTypeString
+					paramTypes[i+i] = byte(fieldTypeString)
 					paramTypes[i+i+1] = 0x00
 
 					if len(v) < mc.maxAllowedPacket-pos-len(paramValues)-(len(args)-(i+1))*64 {
@@ -1056,11 +1030,11 @@ func (stmt *mysqlStmt) writeExecutePacket(args []driver.Value) error {
 
 				// Handle []byte(nil) as a NULL value
 				nullMask[i/8] |= 1 << (uint(i) & 7)
-				paramTypes[i+i] = fieldTypeNULL
+				paramTypes[i+i] = byte(fieldTypeNULL)
 				paramTypes[i+i+1] = 0x00
 
 			case string:
-				paramTypes[i+i] = fieldTypeString
+				paramTypes[i+i] = byte(fieldTypeString)
 				paramTypes[i+i+1] = 0x00
 
 				if len(v) < mc.maxAllowedPacket-pos-len(paramValues)-(len(args)-(i+1))*64 {
@@ -1075,22 +1049,20 @@ func (stmt *mysqlStmt) writeExecutePacket(args []driver.Value) error {
 				}
 
 			case time.Time:
-				paramTypes[i+i] = fieldTypeString
+				paramTypes[i+i] = byte(fieldTypeString)
 				paramTypes[i+i+1] = 0x00
 
-				var a [64]byte
-				var b = a[:0]
-
+				var val []byte
 				if v.IsZero() {
-					b = append(b, "0000-00-00"...)
+					val = []byte("0000-00-00")
 				} else {
-					b = v.In(mc.cfg.Loc).AppendFormat(b, timeFormat)
+					val = []byte(v.In(mc.cfg.Loc).Format(timeFormat))
 				}
 
 				paramValues = appendLengthEncodedInteger(paramValues,
-					uint64(len(b)),
+					uint64(len(val)),
 				)
-				paramValues = append(paramValues, b...)
+				paramValues = append(paramValues, val...)
 
 			default:
 				return fmt.Errorf("can not convert type: %T", arg)
