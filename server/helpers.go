@@ -5,8 +5,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"gopkg.in/doug-martin/goqu.v4"
-
 	"reflect"
 
 	"database/sql"
@@ -17,7 +15,7 @@ import (
 	"github.com/mediocregopher/gojson"
 	"strings"
 	"github.com/Soontao/go-mysql-api/key"
-	types    "github.com/Soontao/go-mysql-api/t"
+	types    "github.com/Soontao/go-mysql-api/types"
 	"github.com/labstack/echo/middleware"
 )
 
@@ -92,7 +90,7 @@ func parseQueryParamsNew(c echo.Context) (option types.QueryOption) {
 	return
 }
 
-func parseQueryParams(c echo.Context) (limit int, offset int, fields []string, wheres map[string]goqu.Op, links []string) {
+func parseQueryParams(c echo.Context) (limit int, offset int, fields []string, wheres map[string]types.WhereOperation, links []string) {
 	queryParam := c.QueryParams()
 	limit, _ = strconv.Atoi(c.QueryParam(key.KEY_QUERY_LIMIT)) // _limit
 	offset, _ = strconv.Atoi(c.QueryParam(key.KEY_QUERY_SKIP)) // _skip
@@ -115,15 +113,16 @@ func parseQueryParams(c echo.Context) (limit int, offset int, fields []string, w
 	}
 	r := regexp.MustCompile("\\'(.*?)\\'\\.([\\w]+)\\((.*?)\\)")
 	if queryParam[key.KEY_QUERY_WHERE] != nil {
-		wheres = make(map[string]goqu.Op)
+		wheres = make(map[string]types.WhereOperation)
 		for _, sWhere := range queryParam[key.KEY_QUERY_WHERE] {
+			sWhere = strings.Replace(sWhere, "\"", "'", -1) // replace "
 			arr := r.FindStringSubmatch(sWhere)
 			if len(arr) == 4 {
 				switch arr[2] {
 				case "in", "notIn":
-					wheres[arr[1]] = goqu.Op{arr[2]: strings.Split(arr[3], ",")}
+					wheres[arr[1]] = types.WhereOperation{arr[2], strings.Split(arr[3], ",")}
 				case "like", "is", "neq", "isNot", "eq":
-					wheres[arr[1]] = goqu.Op{arr[2]: arr[3]}
+					wheres[arr[1]] = types.WhereOperation{arr[2], arr[3]}
 				}
 
 			}

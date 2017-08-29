@@ -3,7 +3,7 @@ package swagger
 import (
 	"github.com/go-openapi/spec"
 	"github.com/go-openapi/jsonreference"
-	types    "github.com/Soontao/go-mysql-api/t"
+	types    "github.com/Soontao/go-mysql-api/types"
 	"fmt"
 )
 

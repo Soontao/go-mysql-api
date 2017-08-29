@@ -2,8 +2,6 @@ package mysql
 
 import (
 	"fmt"
-
-	"gopkg.in/doug-martin/goqu.v4"
 )
 
 // DataBaseMetadata metadata of a database
@@ -47,14 +45,19 @@ type ColumnMetadata struct {
 
 // QueryConfig for Select method
 type QueryOption struct {
-	Table  string
-	Id     string
-	Limit  int
-	Offset int
-	Fields []string
-	Links  []string
-	Wheres map[string]goqu.Op
-	Search string
+	Table  string                    // table name
+	Id     string                    // select with primary key value
+	Limit  int                       // record limit
+	Offset int                       // start offset
+	Fields []string                  // select fields
+	Links  []string                  // auto join table
+	Wheres map[string]WhereOperation // field -> { operation, value }
+	Search string                    // fuzzy query word
+}
+
+type WhereOperation struct {
+	Operation string
+	Value     interface{}
 }
 
 func (c *ColumnMetadata) GetDefaultValue() (v interface{}) {

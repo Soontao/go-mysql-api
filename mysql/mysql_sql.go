@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"gopkg.in/doug-martin/goqu.v4"
-	. "github.com/Soontao/go-mysql-api/t"
+	. "github.com/Soontao/go-mysql-api/types"
 	_ "gopkg.in/doug-martin/goqu.v4/adapters/mysql"
 )
 
@@ -86,7 +86,8 @@ func (s *SQL) configBuilder(builder *goqu.Dataset, priT string, opt QueryOption)
 		rs = rs.Select(fs...)
 	}
 	for f, w := range opt.Wheres {
-		rs = rs.Where(goqu.Ex{f: w})
+		// check field exist
+		rs = rs.Where(goqu.Ex{f: goqu.Op{w.Operation: w.Value}})
 	}
 	for _, l := range opt.Links {
 		refT := l

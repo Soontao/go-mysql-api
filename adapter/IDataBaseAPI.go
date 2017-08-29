@@ -1,8 +1,8 @@
-package inter
+package adapter
 
 import (
 	"database/sql"
-	. "github.com/Soontao/go-mysql-api/t"
+	. "github.com/Soontao/go-mysql-api/types"
 )
 
 type IDatabaseAPI interface {

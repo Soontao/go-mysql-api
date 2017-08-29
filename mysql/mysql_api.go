@@ -4,13 +4,13 @@ import (
 	"database/sql"
 	"fmt"
 	"time"
-	. "github.com/Soontao/go-mysql-api/t"
+	. "github.com/Soontao/go-mysql-api/types"
 	"github.com/Soontao/go-mysql-api/lib"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/labstack/gommon/log"
 	"gopkg.in/doug-martin/goqu.v4"
 	_ "gopkg.in/doug-martin/goqu.v4/adapters/mysql"
-	"github.com/Soontao/go-mysql-api/inter"
+	"github.com/Soontao/go-mysql-api/adapter"
 )
 
 // MysqlAPI
@@ -51,7 +51,7 @@ func (api *MysqlAPI) GetDatabaseMetadata() *DataBaseMetadata {
 // UpdateAPIMetadata use to update the metadata of the MySQLAPI instance
 //
 // If database tables structure changed, it will be useful
-func (api *MysqlAPI) UpdateAPIMetadata() inter.IDatabaseAPI {
+func (api *MysqlAPI) UpdateAPIMetadata() adapter.IDatabaseAPI {
 	if api.useInformationSchema {
 		api.databaseMetadata = api.retriveDatabaseMetadataFromInfoSchema(api.CurrentDatabaseName())
 	} else {

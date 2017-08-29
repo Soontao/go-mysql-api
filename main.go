@@ -17,7 +17,7 @@ func main() {
 
 	cli.Run(new(cliArgs), func(ctx *cli.Context) error {
 		argv := ctx.Argv().(*cliArgs)
-		// if you want adapt other databases, implement inter.IDatabaseAPI interface and rewrite main function.
+		// if you want adapt other databases, implement adapter.IDataBaseAPI interface and rewrite main function.
 		api := mysql.NewMysqlAPI(argv.ConnectionStr, !argv.NoInfomationSchema)
 		server.New(api).Start(argv.ListenAddress)
 		return nil

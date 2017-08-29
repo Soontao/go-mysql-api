@@ -3,17 +3,17 @@ package server
 import (
 	"github.com/Soontao/go-mysql-api/lib"
 	"github.com/labstack/echo"
-	"github.com/Soontao/go-mysql-api/inter"
+	"github.com/Soontao/go-mysql-api/adapter"
 )
 
 // MysqlAPIServer is a http server could access mysql api
 type MysqlAPIServer struct {
-	*echo.Echo             // echo web server
-	api inter.IDatabaseAPI // database api adapter
+	*echo.Echo               // echo web server
+	api adapter.IDatabaseAPI // database api adapter
 }
 
 // New create a new MysqlAPIServer instance
-func New(api inter.IDatabaseAPI) *MysqlAPIServer {
+func New(api adapter.IDatabaseAPI) *MysqlAPIServer {
 	server := &MysqlAPIServer{}
 	server.Echo = echo.New()
 	server.HTTPErrorHandler = customErrorHandler

@@ -3,20 +3,14 @@ package mysql
 import (
 	"testing"
 
-	goqu "gopkg.in/doug-martin/goqu.v4"
+	"gopkg.in/doug-martin/goqu.v4"
 	// mysql dialect
 	_ "gopkg.in/doug-martin/goqu.v4/adapters/mysql"
 )
 
 func TestSQL_GetByTableAndID(t *testing.T) {
-	api := NewMysqlAPI(connectionStr)
-	f := []interface{}{"mid"}
+	api := NewMysqlAPI(connectionStr, false)
 	defer api.Stop()
-	if sql, err := api.sql.GetByTableAndID("monitor", 1, QueryOption{1, 2, f}); err != nil {
-		t.Error(err)
-	} else {
-		println(sql)
-	}
 }
 
 func TestInsertSQLFromMap(t *testing.T) {

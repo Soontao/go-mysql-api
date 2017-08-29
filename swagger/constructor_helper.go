@@ -4,7 +4,7 @@ import (
 	"github.com/go-openapi/spec"
 	"fmt"
 	"github.com/Soontao/go-mysql-api/key"
-	. "github.com/Soontao/go-mysql-api/t"
+	. "github.com/Soontao/go-mysql-api/types"
 )
 
 func NewRefSchema(refDefinationName, reftype string) (s spec.Schema) {
