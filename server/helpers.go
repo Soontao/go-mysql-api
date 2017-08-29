@@ -14,7 +14,7 @@ import (
 	"github.com/labstack/echo"
 	"github.com/mediocregopher/gojson"
 	"strings"
-	"github.com/Soontao/go-mysql-api/key"
+	"github.com/Soontao/go-mysql-api/server/key"
 	types    "github.com/Soontao/go-mysql-api/types"
 	"github.com/labstack/echo/middleware"
 )

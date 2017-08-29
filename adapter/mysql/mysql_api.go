@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 	. "github.com/Soontao/go-mysql-api/types"
-	"github.com/Soontao/go-mysql-api/lib"
+	"github.com/Soontao/go-mysql-api/server/lib"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/labstack/gommon/log"
 	"gopkg.in/doug-martin/goqu.v4"

@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/Soontao/go-mysql-api/server"
 	"github.com/mkideal/cli"
-	"github.com/Soontao/go-mysql-api/mysql"
+	"github.com/Soontao/go-mysql-api/adapter/mysql"
 )
 
 type cliArgs struct {

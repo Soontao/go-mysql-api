@@ -2,9 +2,9 @@ package server
 
 import (
 	"net/http"
-	"github.com/Soontao/go-mysql-api/swagger"
+	"github.com/Soontao/go-mysql-api/server/swagger"
 	"github.com/labstack/echo"
-	"github.com/Soontao/go-mysql-api/static"
+	"github.com/Soontao/go-mysql-api/server/static"
 	"github.com/Soontao/go-mysql-api/adapter"
 )
 

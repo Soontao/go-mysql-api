@@ -1,4 +1,4 @@
-package swagger_test
+package swagger
 
 import (
 	"fmt"
@@ -6,8 +6,8 @@ import (
 
 	"os"
 
-	"github.com/Soontao/go-mysql-api/mysql"
-	"github.com/Soontao/go-mysql-api/swagger"
+	"github.com/Soontao/go-mysql-api/adapter/mysql"
+	"github.com/Soontao/go-mysql-api/server/swaggerswagger"
 )
 
 var connectionStr = os.Getenv("API_CONN_STR")

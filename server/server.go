@@ -1,7 +1,7 @@
 package server
 
 import (
-	"github.com/Soontao/go-mysql-api/lib"
+	"github.com/Soontao/go-mysql-api/server/lib"
 	"github.com/labstack/echo"
 	"github.com/Soontao/go-mysql-api/adapter"
 )
